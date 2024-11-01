@@ -1,0 +1,22 @@
+[bootstrap]
+main_collection = /example/example.collectionc
+
+[script]
+shared_state = 1
+
+[display]
+width = 960
+height = 640
+
+[project]
+title = Defold CrazyGames SDK
+dependencies#0 = https://github.com/andsve/dirtylarry/archive/master.zip
+
+[library]
+include_dirs = crazygames
+
+[html5]
+heap_size = 32
+show_fullscreen_button = 0
+show_made_with_defold = 0
+

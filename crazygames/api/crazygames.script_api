@@ -1,0 +1,42 @@
+- name: crazygames
+  type: table
+  desc: Functions and constants for interacting with the CrazyGames SDK APIs
+
+  members:
+
+#*****************************************************************************************************
+
+  - name: gameplay_start
+    type: function
+
+#*****************************************************************************************************
+
+  - name: gameplay_stop
+    type: function
+
+#*****************************************************************************************************
+
+  - name: show_rewarded_ad
+    type: function
+
+    parameters:
+    - name: callback
+      type: function
+
+#*****************************************************************************************************
+
+  - name: show_midgame_ad
+    type: function
+
+    parameters:
+    - name: callback
+      type: function
+
+#*****************************************************************************************************
+
+  - name: is_ad_blocked
+    type: function
+
+    parameters:
+    - name: callback
+      type: function

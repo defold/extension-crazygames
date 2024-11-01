@@ -1,0 +1,54 @@
+local dirtylarry = require "dirtylarry/dirtylarry"
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+
+	if html5 then
+		crazygames.is_ad_blocked(function(_, blocked)
+			print("is_ad_blocked", blocked)
+			gui.set_text(gui.get_node("adblock"), "is_ad_blocked: " .. tostring(blocked))
+		end)
+	end
+	sound.play("#sound")
+end
+
+local function on_midgame_ad_finished(self, success)
+	-- continue game
+	print("Midgame finished", success)
+	sound.pause("#sound", false)
+	gui.set_text(gui.get_node("success"), "Midgame finished " .. tostring(success) )
+end
+
+local function on_rewarded_ad_finished(self, success)
+	print("Rewarded finished", success)
+	sound.pause("#sound", false)
+	gui.set_text(gui.get_node("success"), "Rewarded success ".. tostring(success))
+end
+
+function on_input(self, action_id, action)
+	if not html5 then return end
+
+	dirtylarry:button("start", action_id, action, function()
+		crazygames.gameplay_start()
+	end)
+
+	dirtylarry:button("stop", action_id, action, function()
+		crazygames.gameplay_stop()
+	end)
+
+	dirtylarry:button("happytime", action_id, action, function()
+		crazygames.happytime()
+	end)
+
+	dirtylarry:button("midgame", action_id, action, function()
+		print("Click Show midgame")
+		sound.pause("#sound", true)
+		crazygames.show_midgame_ad(on_midgame_ad_finished)
+	end)
+
+	dirtylarry:button("reward", action_id, action, function()
+		print("Click Show reward")
+		sound.pause("#sound", true)
+		crazygames.show_rewarded_ad(on_rewarded_ad_finished)
+	end)
+end

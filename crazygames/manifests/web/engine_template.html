@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<head>
+	<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+</head>
+
+<body>
+	<script id='crazygames-sdk-setup' type='text/javascript'>
+		async function initCrazyGames() {
+			await window.CrazyGames.SDK.init();
+			Module.runApp("canvas");
+		}
+		Module['onRuntimeInitialized'] = function() {
+			initCrazyGames();
+		};
+	</script>
+</body>
+</html>

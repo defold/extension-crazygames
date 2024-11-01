@@ -1,0 +1,280 @@
+script: "/example/crazygames.gui_script"
+fonts {
+  name: "larryfont"
+  font: "/dirtylarry/larryfont.font"
+}
+textures {
+  name: "logo"
+  texture: "/example/logo.atlas"
+}
+nodes {
+  position {
+    x: 173.0
+    y: 407.0
+  }
+  type: TYPE_TEMPLATE
+  id: "start"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "start/larrybutton"
+  parent: "start"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "gameplay_start"
+  id: "start/larrylabel"
+  parent: "start/larrybutton"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 176.0
+    y: 294.0
+  }
+  type: TYPE_TEMPLATE
+  id: "stop"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "stop/larrybutton"
+  parent: "stop"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "gameplay_stop"
+  id: "stop/larrylabel"
+  parent: "stop/larrybutton"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 490.0
+    y: 407.0
+  }
+  type: TYPE_TEMPLATE
+  id: "midgame"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "midgame/larrybutton"
+  parent: "midgame"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "show_midgame"
+  id: "midgame/larrylabel"
+  parent: "midgame/larrybutton"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 490.0
+    y: 289.0
+  }
+  type: TYPE_TEMPLATE
+  id: "reward"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "reward/larrybutton"
+  parent: "reward"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "show_rewarded"
+  id: "reward/larrylabel"
+  parent: "reward/larrybutton"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 490.0
+    y: 87.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "is_adblock"
+  font: "larryfont"
+  id: "adblock"
+  outline {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  shadow {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  line_break: true
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 489.0
+    y: 181.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  font: "larryfont"
+  id: "success"
+  outline {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  shadow {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 325.0
+    y: 548.0
+  }
+  scale {
+    x: 0.7
+    y: 0.7
+  }
+  type: TYPE_BOX
+  texture: "logo/defold-logo-color-white@2x"
+  id: "logo"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 562.0
+    y: 546.0
+  }
+  scale {
+    x: 2.0
+    y: 2.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "CrazyGames SDK"
+  font: "larryfont"
+  id: "sdk"
+  outline {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  shadow {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 480.0
+    y: 20.0
+  }
+  scale {
+    x: 0.8
+    y: 0.8
+  }
+  size {
+    x: 1200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  font: "larryfont"
+  id: "url"
+  outline {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  shadow {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  line_break: true
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 795.0
+    y: 137.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  font: "larryfont"
+  id: "params"
+  outline {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  shadow {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  line_break: true
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 176.0
+    y: 179.0
+  }
+  type: TYPE_TEMPLATE
+  id: "happytime"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "happytime/larrybutton"
+  parent: "happytime"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "happytime"
+  id: "happytime/larrylabel"
+  parent: "happytime/larrybutton"
+  overridden_fields: 8
+  template_node_child: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT
+max_nodes: 32

@@ -35,6 +35,8 @@ crazygames.gameplay_stop()
 -- game over screen pops up
 ```
 
+[Link to official documentation](https://docs.crazygames.com/sdk/html5-v3/game/#gameplay-startstop)
+
 
 ## Implement loading events
 
@@ -47,10 +49,13 @@ crazygames.loading_start()
 crazygames.loading_stop()
 ```
 
+[Link to official documentation](https://docs.crazygames.com/sdk/html5-v3/game/#game-loading-startstop)
+
+
 
 ## Implement midgame ads
 
-Midgame advertisements can happen when a user died, a level has been completed, etc. Do not show a midgame ad on a navigational button (e.g. when clicking the main menu icon or opening the settings or opening the shop). [Learn more about midgame ads on the official CrazyGames developer pages](https://docs.crazygames.com/requirements/ads/#requirements-for-midgame-ads).
+Midgame advertisements can happen when a user died, a level has been completed, etc. Do not show a midgame ad on a navigational button (e.g. when clicking the main menu icon or opening the settings or opening the shop). [Learn more about the requirements for midgame ads on the official CrazyGames developer pages](https://docs.crazygames.com/requirements/ads/#requirements-for-midgame-ads).
 
 
 ```lua
@@ -63,10 +68,12 @@ crazygames.show_midgame_ad(function(self, result)
 end)
 ```
 
+[Link to official documentation](https://docs.crazygames.com/sdk/html5-v3/video-ads/#video-ads_1)
+
 
 ## Implement rewarded ads
 
-Rewarded advertisements can be requested by the user in exchange for a reward (An additional life, a retry when the user died, a bonus starting item, extra starting health, etc.). Rewarded ads should be shown when users explicitly consent to watch an advertisement. [Learn more about rewarded ads on the official CrazyGames developer pages](https://docs.crazygames.com/requirements/ads/#requirements-for-rewarded-ads).
+Rewarded advertisements can be requested by the user in exchange for a reward (An additional life, a retry when the user died, a bonus starting item, extra starting health, etc.). Rewarded ads should be shown when users explicitly consent to watch an advertisement. [Learn more about the requirements for rewarded ads on the official CrazyGames developer pages](https://docs.crazygames.com/requirements/ads/#requirements-for-rewarded-ads).
 
 
 ```lua
@@ -79,8 +86,49 @@ crazygames.show_rewarded_ad(function(self, result)
 end)
 ```
 
+[Link to official documentation](https://docs.crazygames.com/sdk/html5-v3/video-ads/#video-ads_1)
 
-## Invite buytt
+
+## Happy time
+
+The `crazygames.happytime()` method can be called on various player achievements (beating a boss, reaching a highscore, etc.). It makes the website celebrate (for example by launching some confetti). There is no need to call this when a level is completed, or an item is obtained.
+
+```lua
+crazygames.happytime()
+```
+
+[Link to official documentation](https://docs.crazygames.com/sdk/html5-v3/game/#happy-time)
+
+
+## Invite button
+
+This feature allows you to display a button in the game footer, that opens a popup containing the invite link. The link can be used to share the CrazyGames version of your game to the players and invite them to join a multiplayer game.
+
+```lua
+crazygames.show_invite_button({
+  roomId = 12345,
+  param1 = "value1",
+  param2 = true,
+})
+```
+
+[Link to official documentation](https://docs.crazygames.com/sdk/html5-v3/game/#invite-button)
+
+
+## Invite button
+
+This feature lets you share the CrazyGames version of your game to the players and invite them to join a multiplayer game.
+
+```lua
+local link = crazygames.invite_link({
+  roomId = 12345,
+  param1 = "value1",
+  param2 = true,
+})
+```
+
+[Link to official documentation](https://docs.crazygames.com/sdk/html5-v3/game/#invite-link)
+
 
 ## Example
 

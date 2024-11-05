@@ -115,7 +115,7 @@ crazygames.show_invite_button({
 [Link to official documentation](https://docs.crazygames.com/sdk/html5-v3/game/#invite-button)
 
 
-## Invite button
+## Invite link
 
 This feature lets you share the CrazyGames version of your game to the players and invite them to join a multiplayer game.
 

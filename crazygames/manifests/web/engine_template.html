@@ -5,13 +5,38 @@
 
 <body>
 	<script id='crazygames-sdk-setup' type='text/javascript'>
+		var data = {};
+		var isLoadStarted = false;
+		var isLoadFinished = false;
+		var isCrazyGamesInitialized	= false;
+		var isRuntimeInitialized = false;
+		Progress.addListener(function(percentage){
+			if (isCrazyGamesInitialized) {
+				if (!isLoadStarted) {
+					window.CrazyGames.SDK.game.loadingStart();
+					isLoadStarted = true;
+				}
+				if (percentage == 100 && !isLoadFinished) {
+					window.CrazyGames.SDK.game.loadingStop();
+					isLoadFinished = true;
+				}
+			}
+		});
 		async function initCrazyGames() {
 			await window.CrazyGames.SDK.init();
-			Module.runApp("canvas");
+			isCrazyGamesInitialized = true;
+			if (isRuntimeInitialized) {
+				Module.runApp("canvas");
+			}
 		}
 		Module['onRuntimeInitialized'] = function() {
-			initCrazyGames();
+			isRuntimeInitialized = true;
+			if (isCrazyGamesInitialized) {
+				Module.runApp("canvas");
+			}
 		};
+
+		initCrazyGames();
 	</script>
 </body>
 </html>

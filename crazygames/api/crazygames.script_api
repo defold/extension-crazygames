@@ -8,16 +8,32 @@
 
   - name: gameplay_start
     type: function
+    desc: The gameplayStart() function has to be called whenever the player starts playing or resumes playing after a break (menu/loading/achievement screen, game paused, etc.)
 
 #*****************************************************************************************************
 
   - name: gameplay_stop
     type: function
+    desc: The gameplayStop() function has to be called on every game break (entering a menu, switching level, pausing the game, ...) don't forget to call gameplayStart() when the gameplay resumes
+
+#*****************************************************************************************************
+
+  - name: loading_start
+    type: function
+    desc: The loadingStart() function has to be called whenever you start loading your game.
+
+#*****************************************************************************************************
+
+  - name: loading_stop
+    type: function
+    desc: The loadingStop() function has to be called when the loading is complete and eventually the gameplay starts.
+
 
 #*****************************************************************************************************
 
   - name: show_rewarded_ad
     type: function
+    desc: Show a rewarded ad.
 
     parameters:
     - name: callback
@@ -27,6 +43,7 @@
 
   - name: show_midgame_ad
     type: function
+    desc: Show a midgame ad.
 
     parameters:
     - name: callback
@@ -36,7 +53,56 @@
 
   - name: is_ad_blocked
     type: function
+    desc: Detect if the user has an adblocker.
 
     parameters:
     - name: callback
       type: function
+
+#*****************************************************************************************************
+
+  - name: invite_link
+    type: function
+    desc: Create a link to your game to invite others to join a multiplayer game.
+
+    parameters:
+    - name: params
+      type: table
+
+    returns:
+    - name: link
+      type: string
+
+#*****************************************************************************************************
+
+  - name: show_invite_button
+    type: function
+    desc: Display a button in the game footer, that opens a popup containing an invite link.
+
+    parameters:
+    - name: params
+      type: table
+
+    returns:
+    - name: link
+      type: string
+
+#*****************************************************************************************************
+
+  - name: hide_invite_button
+    type: function
+    desc: Hide the invite button when it is no longer necessary.
+
+#*****************************************************************************************************
+
+  - name: get_invite_param
+    type: function
+    desc: Get an invite link parameters.
+
+    parameters:
+    - name: key
+      type: string
+
+    returns:
+    - name: value
+      type: string

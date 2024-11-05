@@ -20,10 +20,21 @@ typedef void (*IsAdBlockedCallback)(int success);
 extern "C" {
     void CrazyGamesJs_GameplayStart();
     void CrazyGamesJs_GameplayStop();
+    void CrazyGamesJs_LoadingStart();
+    void CrazyGamesJs_LoadingStop();
     void CrazyGamesJs_ShowMidgameAd(MidgameAdCallback callback);
     void CrazyGamesJs_ShowRewardedAd(RewardedAdCallback callback);
      int CrazyGamesJs_IsAdBlocked(IsAdBlockedCallback callback);
     void CrazyGamesJs_HappyTime();
+    void CrazyGamesJs_ClearInviteLinkParams();
+    void CrazyGamesJs_AddInviteLinkParamString(const char* key, const char* value);
+    void CrazyGamesJs_AddInviteLinkParamNumber(const char* key, int32_t value);
+    void CrazyGamesJs_AddInviteLinkParamBoolean(const char* key, bool value);
+    char* CrazyGamesJs_ShowInviteButton();
+    void CrazyGamesJs_HideInviteButton();
+    char* CrazyGamesJs_InviteLink();
+    char* CrazyGamesJs_GetInviteParam(const char* key);
+
 }
 
 static dmScript::LuaCallbackInfo* crazyGames_Callback = 0x0;
@@ -82,6 +93,20 @@ static void CrazyGames_RewardedAdCallback(int success)
 static void CrazyGames_IsAdBlockedCallback(int success)
 {
     CrazyGames_InvokeCallback(TYPE_ISADBLOCKED, success, 0);
+}
+
+static int CrazyGames_LoadingStart(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_LoadingStart();
+    return 0;
+}
+
+static int CrazyGames_LoadingStop(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_LoadingStop();
+    return 0;
 }
 
 static int CrazyGames_GameplayStart(lua_State* L)
@@ -149,15 +174,85 @@ static int CrazyGames_IsAdBlocked(lua_State* L)
     return 0;
 }
 
+static void CrazyGames_SetInviteLinkParams(lua_State* L, int index) {
+    luaL_checktype(L, index, LUA_TTABLE);
+    CrazyGamesJs_ClearInviteLinkParams();
+    lua_pushvalue(L, index);
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0)
+    {
+        const char* param_name = lua_tostring(L, -2);
+        int t = lua_type(L, -1);
+        switch (t) {
+            case LUA_TSTRING:
+                CrazyGamesJs_AddInviteLinkParamString(param_name, lua_tostring(L, -1));
+            break;
+            case LUA_TBOOLEAN:
+                CrazyGamesJs_AddInviteLinkParamBoolean(param_name, lua_toboolean(L, -1));
+            break;
+            case LUA_TNUMBER:
+                CrazyGamesJs_AddInviteLinkParamNumber(param_name, lua_tonumber(L, -1));
+            break;
+            default:  /* other values */
+                lua_pop(L, 3);
+                luaL_error(L, "Wrong type for table attribute '%s', type: '%s'", param_name, luaL_typename(L, -1));
+                return;
+            break;
+        }
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+}
+
+static int CrazyGames_InviteLink(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    CrazyGames_SetInviteLinkParams(L, 1);
+    const char* link = CrazyGamesJs_InviteLink();
+    lua_pushstring(L, link);
+    return 1;
+}
+static int CrazyGames_ShowInviteButton(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    CrazyGames_SetInviteLinkParams(L, 1);
+    const char* link = CrazyGamesJs_ShowInviteButton();
+    lua_pushstring(L, link);
+    return 1;
+}
+
+static int CrazyGames_HideInviteButton(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_HideInviteButton();
+    return 0;
+}
+
+
+static int CrazyGames_GetInviteParam(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    const char* key = luaL_checkstring(L, 1);
+    char* value = CrazyGamesJs_GetInviteParam(key);
+    lua_pushstring(L, value);
+    return 1;
+}
+
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] =
 {
-    {"gameplay_start",   CrazyGames_GameplayStart},
-    {"gameplay_stop",    CrazyGames_GameplayStop},
-    {"show_midgame_ad",  CrazyGames_ShowMidgameAd},
-    {"show_rewarded_ad", CrazyGames_ShowRewardedAd},
-    {"happytime",        CrazyGames_HappyTime},
-    {"is_ad_blocked",    CrazyGames_IsAdBlocked},
+    {"gameplay_start",     CrazyGames_GameplayStart},
+    {"gameplay_stop",      CrazyGames_GameplayStop},
+    {"loading_start",      CrazyGames_LoadingStart},
+    {"loading_stop",       CrazyGames_LoadingStop},
+    {"show_midgame_ad",    CrazyGames_ShowMidgameAd},
+    {"show_rewarded_ad",   CrazyGames_ShowRewardedAd},
+    {"happytime",          CrazyGames_HappyTime},
+    {"is_ad_blocked",      CrazyGames_IsAdBlocked},
+    {"show_invite_button", CrazyGames_ShowInviteButton},
+    {"hide_invite_button", CrazyGames_HideInviteButton},
+    {"get_invite_param",   CrazyGames_GetInviteParam},
+    {"invite_link",        CrazyGames_InviteLink},
     {0, 0}
 };
 

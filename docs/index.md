@@ -36,6 +36,18 @@ crazygames.gameplay_stop()
 ```
 
 
+## Implement loading events
+
+Use the `crazygames.loading_start()` and `crazygames.loading_stop()` events to track when and how long the loading of your game takes.
+
+```lua
+-- assets are loading
+crazygames.loading_start()
+-- assets are loaded
+crazygames.loading_stop()
+```
+
+
 ## Implement midgame ads
 
 Midgame advertisements can happen when a user died, a level has been completed, etc. Do not show a midgame ad on a navigational button (e.g. when clicking the main menu icon or opening the settings or opening the shop). [Learn more about midgame ads on the official CrazyGames developer pages](https://docs.crazygames.com/requirements/ads/#requirements-for-midgame-ads).
@@ -67,6 +79,8 @@ crazygames.show_rewarded_ad(function(self, result)
 end)
 ```
 
+
+## Invite buytt
 
 ## Example
 

@@ -9,56 +9,144 @@ textures {
 }
 nodes {
   position {
-    x: 173.0
-    y: 407.0
+    x: 170.0
+    y: 410.0
   }
   type: TYPE_TEMPLATE
-  id: "start"
+  id: "gameplaystart"
   inherit_alpha: true
   template: "/dirtylarry/button.gui"
 }
 nodes {
+  size {
+    x: 300.0
+    y: 60.0
+  }
   type: TYPE_BOX
-  id: "start/larrybutton"
-  parent: "start"
+  id: "gameplaystart/larrybutton"
+  parent: "gameplaystart"
+  overridden_fields: 4
   template_node_child: true
 }
 nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
   type: TYPE_TEXT
   text: "gameplay_start"
-  id: "start/larrylabel"
-  parent: "start/larrybutton"
+  id: "gameplaystart/larrylabel"
+  parent: "gameplaystart/larrybutton"
+  overridden_fields: 4
   overridden_fields: 8
   template_node_child: true
 }
 nodes {
   position {
-    x: 176.0
-    y: 294.0
+    x: 170.0
+    y: 340.0
   }
   type: TYPE_TEMPLATE
-  id: "stop"
+  id: "gameplaystop"
   inherit_alpha: true
   template: "/dirtylarry/button.gui"
 }
 nodes {
+  size {
+    x: 300.0
+    y: 66.0
+  }
   type: TYPE_BOX
-  id: "stop/larrybutton"
-  parent: "stop"
+  id: "gameplaystop/larrybutton"
+  parent: "gameplaystop"
+  overridden_fields: 4
   template_node_child: true
 }
 nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
   type: TYPE_TEXT
   text: "gameplay_stop"
-  id: "stop/larrylabel"
-  parent: "stop/larrybutton"
+  id: "gameplaystop/larrylabel"
+  parent: "gameplaystop/larrybutton"
+  overridden_fields: 4
   overridden_fields: 8
   template_node_child: true
 }
 nodes {
   position {
-    x: 490.0
-    y: 407.0
+    x: 170.0
+    y: 270.0
+  }
+  type: TYPE_TEMPLATE
+  id: "loadingstart"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  size {
+    x: 300.0
+    y: 60.0
+  }
+  type: TYPE_BOX
+  id: "loadingstart/larrybutton"
+  parent: "loadingstart"
+  overridden_fields: 4
+  template_node_child: true
+}
+nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
+  type: TYPE_TEXT
+  text: "loading_start"
+  id: "loadingstart/larrylabel"
+  parent: "loadingstart/larrybutton"
+  overridden_fields: 4
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 170.0
+    y: 200.0
+  }
+  type: TYPE_TEMPLATE
+  id: "loadingstop"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  size {
+    x: 300.0
+    y: 66.0
+  }
+  type: TYPE_BOX
+  id: "loadingstop/larrybutton"
+  parent: "loadingstop"
+  overridden_fields: 4
+  template_node_child: true
+}
+nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
+  type: TYPE_TEXT
+  text: "loading_stop"
+  id: "loadingstop/larrylabel"
+  parent: "loadingstop/larrybutton"
+  overridden_fields: 4
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 480.0
+    y: 410.0
   }
   type: TYPE_TEMPLATE
   id: "midgame"
@@ -66,23 +154,33 @@ nodes {
   template: "/dirtylarry/button.gui"
 }
 nodes {
+  size {
+    x: 300.0
+    y: 66.0
+  }
   type: TYPE_BOX
   id: "midgame/larrybutton"
   parent: "midgame"
+  overridden_fields: 4
   template_node_child: true
 }
 nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
   type: TYPE_TEXT
   text: "show_midgame"
   id: "midgame/larrylabel"
   parent: "midgame/larrybutton"
+  overridden_fields: 4
   overridden_fields: 8
   template_node_child: true
 }
 nodes {
   position {
-    x: 490.0
-    y: 289.0
+    x: 480.0
+    y: 340.0
   }
   type: TYPE_TEMPLATE
   id: "reward"
@@ -90,23 +188,135 @@ nodes {
   template: "/dirtylarry/button.gui"
 }
 nodes {
+  size {
+    x: 300.0
+    y: 66.0
+  }
   type: TYPE_BOX
   id: "reward/larrybutton"
   parent: "reward"
+  overridden_fields: 4
   template_node_child: true
 }
 nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
   type: TYPE_TEXT
   text: "show_rewarded"
   id: "reward/larrylabel"
   parent: "reward/larrybutton"
+  overridden_fields: 4
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 480.0
+    y: 270.0
+  }
+  type: TYPE_TEMPLATE
+  id: "happytime"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  size {
+    x: 300.0
+    y: 66.0
+  }
+  type: TYPE_BOX
+  id: "happytime/larrybutton"
+  parent: "happytime"
+  overridden_fields: 4
+  template_node_child: true
+}
+nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
+  type: TYPE_TEXT
+  text: "happytime"
+  id: "happytime/larrylabel"
+  parent: "happytime/larrybutton"
+  overridden_fields: 4
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 480.0
+    y: 200.0
+  }
+  type: TYPE_TEMPLATE
+  id: "invitebutton"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  size {
+    x: 300.0
+    y: 66.0
+  }
+  type: TYPE_BOX
+  id: "invitebutton/larrybutton"
+  parent: "invitebutton"
+  overridden_fields: 4
+  template_node_child: true
+}
+nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
+  type: TYPE_TEXT
+  text: "invitebutton"
+  id: "invitebutton/larrylabel"
+  parent: "invitebutton/larrybutton"
+  overridden_fields: 4
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 790.0
+    y: 410.0
+  }
+  type: TYPE_TEMPLATE
+  id: "invitelink"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  size {
+    x: 300.0
+    y: 66.0
+  }
+  type: TYPE_BOX
+  id: "invitelink/larrybutton"
+  parent: "invitelink"
+  overridden_fields: 4
+  template_node_child: true
+}
+nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
+  type: TYPE_TEXT
+  text: "invitelink"
+  id: "invitelink/larrylabel"
+  parent: "invitelink/larrybutton"
+  overridden_fields: 4
   overridden_fields: 8
   template_node_child: true
 }
 nodes {
   position {
     x: 490.0
-    y: 87.0
+    y: 117.0
   }
   size {
     x: 200.0
@@ -131,8 +341,8 @@ nodes {
 }
 nodes {
   position {
-    x: 489.0
-    y: 181.0
+    x: 119.0
+    y: 110.0
   }
   size {
     x: 200.0
@@ -155,7 +365,7 @@ nodes {
 }
 nodes {
   position {
-    x: 325.0
+    x: 205.0
     y: 548.0
   }
   scale {
@@ -229,7 +439,7 @@ nodes {
 nodes {
   position {
     x: 795.0
-    y: 137.0
+    y: 118.0
   }
   size {
     x: 200.0
@@ -251,30 +461,6 @@ nodes {
   line_break: true
   inherit_alpha: true
 }
-nodes {
-  position {
-    x: 176.0
-    y: 179.0
-  }
-  type: TYPE_TEMPLATE
-  id: "happytime"
-  inherit_alpha: true
-  template: "/dirtylarry/button.gui"
-}
-nodes {
-  type: TYPE_BOX
-  id: "happytime/larrybutton"
-  parent: "happytime"
-  template_node_child: true
-}
-nodes {
-  type: TYPE_TEXT
-  text: "happytime"
-  id: "happytime/larrylabel"
-  parent: "happytime/larrybutton"
-  overridden_fields: 8
-  template_node_child: true
-}
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT
-max_nodes: 32
+max_nodes: 35

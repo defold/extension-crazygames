@@ -3,7 +3,8 @@
 var LibCrazyGames = {
 
     $CrazyGamesJs: {
-        _callback: null
+        _callback: null,
+        _inviteLinkParams: null,
     },
 
     CrazyGamesJs_ShowMidgameAd: function(callback) {
@@ -50,6 +51,41 @@ var LibCrazyGames = {
         });
     },
 
+    CrazyGamesJs_ClearInviteLinkParams: function() {
+        CrazyGamesJs._inviteLinkParams = {};
+    },
+
+    CrazyGamesJs_AddInviteLinkParamString: function(key, value) {
+        CrazyGamesJs._inviteLinkParams[UTF8ToString(key)] = UTF8ToString(value);
+    },
+
+    CrazyGamesJs_AddInviteLinkParamNumber: function(key, value) {
+        CrazyGamesJs._inviteLinkParams[UTF8ToString(key)] = value;
+    },
+
+    CrazyGamesJs_AddInviteLinkParamBoolean: function(key, value) {
+        CrazyGamesJs._inviteLinkParams[UTF8ToString(key)] = value;
+    },
+
+    CrazyGamesJs_InviteLink: function() {
+        const link = window.CrazyGames.SDK.game.inviteLink(CrazyGamesJs._inviteLinkParams);
+        return stringToUTF8OnStack(link);
+    },
+
+    CrazyGamesJs_ShowInviteButton: function() {
+        const link = window.CrazyGames.SDK.game.showInviteButton(CrazyGamesJs._inviteLinkParams);
+        return stringToUTF8OnStack(link);
+    },
+
+    CrazyGamesJs_HideInviteButton: function() {
+        window.CrazyGames.SDK.game.hideInviteButton();
+    },
+
+    CrazyGamesJs_GetInviteParam: function(key) {
+        const value = window.CrazyGames.SDK.game.getInviteParam(UTF8ToString(key));
+        return stringToUTF8OnStack(value);
+    },
+
     CrazyGamesJs_HappyTime: function() {
         window.CrazyGames.SDK.game.happytime();
     },
@@ -60,6 +96,14 @@ var LibCrazyGames = {
 
     CrazyGamesJs_GameplayStop: function() {
         window.CrazyGames.SDK.game.gameplayStop();
+    },
+
+    CrazyGamesJs_LoadingStart: function() {
+        window.CrazyGames.SDK.game.loadingStart();
+    },
+
+    CrazyGamesJs_LoadingStop: function() {
+        window.CrazyGames.SDK.game.loadingStop();
     }
 }
 

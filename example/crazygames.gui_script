@@ -1,13 +1,20 @@
 local dirtylarry = require "dirtylarry/dirtylarry"
 
+local function log(self, formatstring, ...)
+	local s = string.format(formatstring, ...)
+	gui.set_text(gui.get_node("log"), s)
+end
+
 function init(self)
 	msg.post(".", "acquire_input_focus")
 
 	if html5 then
 		crazygames.is_ad_blocked(function(_, blocked)
 			print("is_ad_blocked", blocked)
-			gui.set_text(gui.get_node("adblock"), "is_ad_blocked: " .. tostring(blocked))
+			log(self, "is_ad_blocked: %s", tostring(blocked))
 		end)
+	else
+		log(self, "This example only works on HTML5")
 	end
 	sound.play("#sound")
 end
@@ -16,13 +23,13 @@ local function on_midgame_ad_finished(self, success)
 	-- continue game
 	print("Midgame finished", success)
 	sound.pause("#sound", false)
-	gui.set_text(gui.get_node("success"), "Midgame finished " .. tostring(success) )
+	log(self, "Midgame finished %s", tostring(success))
 end
 
 local function on_rewarded_ad_finished(self, success)
 	print("Rewarded finished", success)
 	sound.pause("#sound", false)
-	gui.set_text(gui.get_node("success"), "Rewarded success ".. tostring(success))
+	log(self, "Reward finished %s", tostring(success))
 end
 
 function on_input(self, action_id, action)
@@ -30,22 +37,27 @@ function on_input(self, action_id, action)
 
 	dirtylarry:button("gameplaystart", action_id, action, function()
 		crazygames.gameplay_start()
+		log(self, "Calling crazygames.gameplay_start()")
 	end)
 
 	dirtylarry:button("gameplaystop", action_id, action, function()
 		crazygames.gameplay_stop()
+		log(self, "Calling crazygames.gameplay_stop()")
 	end)
 
 	dirtylarry:button("loadingstart", action_id, action, function()
 		crazygames.loading_start()
+		log(self, "Calling crazygames.loading_start()")
 	end)
 
 	dirtylarry:button("loadingstop", action_id, action, function()
 		crazygames.loading_stop()
+		log(self, "Calling crazygames.loading_stop()")
 	end)
 
 	dirtylarry:button("happytime", action_id, action, function()
 		crazygames.happytime()
+		log(self, "Calling crazygames.happytime()")
 	end)
 
 	dirtylarry:button("invitebutton", action_id, action, function()
@@ -55,6 +67,7 @@ function on_input(self, action_id, action)
 			param2 = true,
 		})
 		print(link)
+		log(self, "Showing invite button with link\n'%s'", link)
 	end)
 
 	dirtylarry:button("invitelink", action_id, action, function()
@@ -64,17 +77,44 @@ function on_input(self, action_id, action)
 			param2 = true,
 		})
 		print(link)
+		log(self, "Generated invite link\n'%s'", link)
 	end)
 		
 	dirtylarry:button("midgame", action_id, action, function()
 		print("Click Show midgame")
 		sound.pause("#sound", true)
 		crazygames.show_midgame_ad(on_midgame_ad_finished)
+		log(self, "Calling crazygames.show_midgame_ad()")
 	end)
 
 	dirtylarry:button("reward", action_id, action, function()
 		print("Click Show reward")
 		sound.pause("#sound", true)
 		crazygames.show_rewarded_ad(on_rewarded_ad_finished)
+		log(self, "Calling crazygames.show_rewarded_ad()")
+	end)
+
+	dirtylarry:button("cleardata", action_id, action, function()
+		crazygames.clear_data()
+		log(self, "Calling crazygames.clear_data()")
+	end)
+
+	dirtylarry:button("getitem", action_id, action, function()
+		local key = "foo"
+		local value = crazygames.get_item(key)
+		log(self, "crazygames.get_item(\"%s\") = %s", key, tostring(value))
+	end)
+
+	dirtylarry:button("setitem", action_id, action, function()
+		local key = "foo"
+		local value = tostring(math.random())
+		crazygames.set_item("foo", value)
+		log(self, "crazygames.set_item(\"%s\", \"%s\")", key, value)
+	end)
+
+	dirtylarry:button("removeitem", action_id, action, function()
+		local key = "foo"
+		crazygames.remove_item("foo")
+		log(self, "crazygames.remove_item(\"%s\")", key)
 	end)
 end

@@ -106,3 +106,49 @@
     returns:
     - name: value
       type: string
+
+#*****************************************************************************************************
+
+  - name: clear_data
+    type: function
+    desc: Remove all data items from the local storage.
+
+
+#*****************************************************************************************************
+
+  - name: get_item
+    type: function
+    desc: Get a data item from the local storage.
+
+    parameters:
+    - name: key
+      type: string
+
+    returns:
+    - name: value
+      type: string
+
+
+#*****************************************************************************************************
+
+  - name: remove_item
+    type: function
+    desc: Remove a data item from the local storage.
+
+    parameters:
+    - name: key
+      type: string
+
+
+#*****************************************************************************************************
+
+  - name: set_item
+    type: function
+    desc: Add a data item to the local storage.
+
+    parameters:
+    - name: key
+      type: string
+
+    - name: value
+      type: string

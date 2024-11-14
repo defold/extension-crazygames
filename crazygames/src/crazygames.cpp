@@ -18,23 +18,32 @@ typedef void (*RewardedAdCallback)(int success);
 typedef void (*IsAdBlockedCallback)(int success);
 
 extern "C" {
-    void CrazyGamesJs_GameplayStart();
-    void CrazyGamesJs_GameplayStop();
-    void CrazyGamesJs_LoadingStart();
-    void CrazyGamesJs_LoadingStop();
-    void CrazyGamesJs_ShowMidgameAd(MidgameAdCallback callback);
-    void CrazyGamesJs_ShowRewardedAd(RewardedAdCallback callback);
-     int CrazyGamesJs_IsAdBlocked(IsAdBlockedCallback callback);
-    void CrazyGamesJs_HappyTime();
-    void CrazyGamesJs_ClearInviteLinkParams();
-    void CrazyGamesJs_AddInviteLinkParamString(const char* key, const char* value);
-    void CrazyGamesJs_AddInviteLinkParamNumber(const char* key, int32_t value);
-    void CrazyGamesJs_AddInviteLinkParamBoolean(const char* key, bool value);
+
+    // Game module
+    void  CrazyGamesJs_GameplayStart();
+    void  CrazyGamesJs_GameplayStop();
+    void  CrazyGamesJs_LoadingStart();
+    void  CrazyGamesJs_LoadingStop();
+    void  CrazyGamesJs_HappyTime();
+    void  CrazyGamesJs_ClearInviteLinkParams();
+    void  CrazyGamesJs_AddInviteLinkParamString(const char* key, const char* value);
+    void  CrazyGamesJs_AddInviteLinkParamNumber(const char* key, int32_t value);
+    void  CrazyGamesJs_AddInviteLinkParamBoolean(const char* key, bool value);
     char* CrazyGamesJs_ShowInviteButton();
-    void CrazyGamesJs_HideInviteButton();
+    void  CrazyGamesJs_HideInviteButton();
     char* CrazyGamesJs_InviteLink();
     char* CrazyGamesJs_GetInviteParam(const char* key);
 
+    // Ads module
+    void  CrazyGamesJs_ShowMidgameAd(MidgameAdCallback callback);
+    void  CrazyGamesJs_ShowRewardedAd(RewardedAdCallback callback);
+    void  CrazyGamesJs_IsAdBlocked(IsAdBlockedCallback callback);
+
+    // Data module
+    void  CrazyGamesJs_ClearData();
+    char* CrazyGamesJs_GetItem(const char* key);
+    void  CrazyGamesJs_RemoveItem(const char* key);
+    void  CrazyGamesJs_SetItem(const char* key, const char* value);
 }
 
 static dmScript::LuaCallbackInfo* crazyGames_Callback = 0x0;
@@ -79,6 +88,23 @@ static void CrazyGames_InvokeCallback(CrazyGamesCallbackType callbackType, int i
         crazyGames_Callback = 0x0;
     }
 }
+
+
+
+static int check_callback(lua_State* L, int index, char* funcname)
+{
+    if (!lua_isfunction(L, index))
+    {
+        luaL_error(L, "Expected argument %d when calling %s to be a callback function.", index, funcname);
+        return 0;
+    }
+    if (crazyGames_Callback != 0x0) {
+        dmLogWarning("CrazyGames callback already set when calling %s. Overwriting existing callback.", funcname);
+    }
+    crazyGames_Callback = dmScript::CreateCallback(L, index);
+    return 1;
+}
+
 
 static void CrazyGames_MidgameAdCallback(int success)
 {
@@ -128,20 +154,6 @@ static int CrazyGames_HappyTime(lua_State* L)
     DM_LUA_STACK_CHECK(L, 0);
     CrazyGamesJs_HappyTime();
     return 0;
-}
-
-static int check_callback(lua_State* L, int index, char* funcname)
-{
-    if (!lua_isfunction(L, index))
-    {
-        luaL_error(L, "Expected argument %d when calling %s to be a callback function.", index, funcname);
-        return 0;
-    }
-    if (crazyGames_Callback != 0x0) {
-        dmLogWarning("CrazyGames callback already set when calling %s. Overwriting existing callback.", funcname);
-    }
-    crazyGames_Callback = dmScript::CreateCallback(L, index);
-    return 1;
 }
 
 static int CrazyGames_ShowMidgameAd(lua_State* L)
@@ -238,6 +250,47 @@ static int CrazyGames_GetInviteParam(lua_State* L)
     return 1;
 }
 
+static int CrazyGames_Clear(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_ClearData();
+    return 0;
+}
+
+static int CrazyGames_GetItem(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    const char* key = luaL_checkstring(L, 1);
+    char* value = CrazyGamesJs_GetItem(key);
+    if (value)
+    {
+        lua_pushstring(L, value);
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int CrazyGames_RemoveItem(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    const char* key = luaL_checkstring(L, 1);
+    CrazyGamesJs_RemoveItem(key);
+    return 0;
+}
+
+static int CrazyGames_SetItem(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    const char* key = luaL_checkstring(L, 1);
+    const char* value = luaL_checkstring(L, 2);
+    CrazyGamesJs_SetItem(key, value);
+    return 0;
+}
+
+
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] =
 {
@@ -253,6 +306,10 @@ static const luaL_reg Module_methods[] =
     {"hide_invite_button", CrazyGames_HideInviteButton},
     {"get_invite_param",   CrazyGames_GetInviteParam},
     {"invite_link",        CrazyGames_InviteLink},
+    {"clear_data",         CrazyGames_Clear},
+    {"get_item",           CrazyGames_GetItem},
+    {"remove_item",        CrazyGames_RemoveItem},
+    {"set_item",           CrazyGames_SetItem},
     {0, 0}
 };
 

@@ -5,17 +5,29 @@ var LibCrazyGames = {
     $CrazyGamesJs: {
         _callback: null,
         _inviteLinkParams: null,
+
+        _successCallback: function(success) {
+            // console.log("_successCallback", success, CrazyGamesJs._callback);
+            var msg = success ? 1 : 0;
+            {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(msg);
+        },
+
+        _errorCallback: function(error) {
+            console.log("_errorCallback", error, CrazyGamesJs._callback);
+            {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(0);
+        }
     },
 
     CrazyGamesJs_ShowMidgameAd: function(callback) {
         CrazyGamesJs._callback = callback;
         const callbacks = {
             adFinished: () => {
-                {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(1);
+                // console.log("CrazyGamesJs_ShowMidgameAd adFinished");
+                CrazyGamesJs._successCallback(true);
             },
             adError: (error) => {
-                console.log("CrazyGamesJs_ShowMidgameAd adError", error);
-                {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(0);
+                // console.log("CrazyGamesJs_ShowMidgameAd adError", error);
+                CrazyGamesJs._errorCallback(error);
             },
             adStarted: () => {
                 // console.log("CrazyGamesJs_ShowMidgameAd adStarted");
@@ -28,11 +40,12 @@ var LibCrazyGames = {
         CrazyGamesJs._callback = callback;
         const callbacks = {
             adFinished: () => {
-                {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(1);
+                // console.log("CrazyGamesJs_ShowRewardedAd adFinished");
+                CrazyGamesJs._successCallback(true);
             },
             adError: (error) => {
-                console.log("CrazyGamesJs_ShowRewardedAd adError", error);
-                {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(0);
+                // console.log("CrazyGamesJs_ShowRewardedAd adError", error);
+                CrazyGamesJs._errorCallback(error);
             },
             adStarted: () => {
                 // console.log("CrazyGamesJs_ShowRewardedAd adStarted");
@@ -44,10 +57,11 @@ var LibCrazyGames = {
     CrazyGamesJs_IsAdBlocked: async function(callback) {
         CrazyGamesJs._callback = callback;
         window.CrazyGames.SDK.ad.hasAdblock().then((result) => {
-            {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(result ? 1 : 0);
+            // console.log("CrazyGamesJs_IsAdBlocked", result)
+            CrazyGamesJs._successCallback(result);
         }).catch((error) => {
-            console.log("CrazyGamesJs_IsAdBlocked error", error)
-            {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(0);
+            // console.log("CrazyGamesJs_IsAdBlocked error", error)
+            CrazyGamesJs._errorCallback(error);
         });
     },
 
@@ -104,7 +118,25 @@ var LibCrazyGames = {
 
     CrazyGamesJs_LoadingStop: function() {
         window.CrazyGames.SDK.game.loadingStop();
+    },
+
+    CrazyGamesJs_ClearData: function() {
+        window.CrazyGames.SDK.data.clear();
+    },
+
+    CrazyGamesJs_GetItem: function(key) {
+        var value = window.CrazyGames.SDK.data.getItem(UTF8ToString(key));
+        return value ? stringToUTF8OnStack(value) : null;
+    },
+
+    CrazyGamesJs_RemoveItem: function(key) {
+        window.CrazyGames.SDK.data.removeItem(UTF8ToString(key));
+    },
+
+    CrazyGamesJs_SetItem: function(key, value) {
+        window.CrazyGames.SDK.data.setItem(UTF8ToString(key), UTF8ToString(value));
     }
+
 }
 
 autoAddDeps(LibCrazyGames, '$CrazyGamesJs');

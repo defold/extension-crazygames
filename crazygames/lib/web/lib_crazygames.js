@@ -3,23 +3,38 @@
 var LibCrazyGames = {
 
     $CrazyGamesJs: {
-        _callback: null,
+        _luaCallback: null,
+        _luaAuthCallback: null,
         _inviteLinkParams: null,
 
         _successCallback: function(success) {
-            // console.log("_successCallback", success, CrazyGamesJs._callback);
+            console.log("_successCallback", success, CrazyGamesJs._callback);
+            if (_luaCallback == null) return;
             var msg = success ? 1 : 0;
-            {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(msg);
+            {{{ makeDynCall("vi", "CrazyGamesJs._luaCallback")}}}(msg);
         },
 
         _errorCallback: function(error) {
             console.log("_errorCallback", error, CrazyGamesJs._callback);
-            {{{ makeDynCall("vi", "CrazyGamesJs._callback")}}}(0);
+            if (_luaCallback == null) return;
+            {{{ makeDynCall("vi", "CrazyGamesJs._luaCallback")}}}(0);
+        },
+
+        _authCallback: function(user) {
+            console.log("_authCallback", user);
+            if (_luaAuthCallback == null) return;
+            if (user != null) {
+                const userJson = JSON.stringify(user);
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaAuthCallback")}}}(stringToUTF8OnStack(userJson));
+            }
+            else {
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaAuthCallback")}}}(stringToUTF8OnStack(""));
+            }
         }
     },
 
     CrazyGamesJs_ShowMidgameAd: function(callback) {
-        CrazyGamesJs._callback = callback;
+        CrazyGamesJs._luaCallback = callback;
         const callbacks = {
             adFinished: () => {
                 // console.log("CrazyGamesJs_ShowMidgameAd adFinished");
@@ -54,8 +69,8 @@ var LibCrazyGames = {
         window.CrazyGames.SDK.ad.requestAd("rewarded", callbacks);
     },
 
-    CrazyGamesJs_IsAdBlocked: async function(callback) {
-        CrazyGamesJs._callback = callback;
+    CrazyGamesJs_IsAdBlocked: function(callback) {
+        CrazyGamesJs._luaCallback = callback;
         window.CrazyGames.SDK.ad.hasAdblock().then((result) => {
             // console.log("CrazyGamesJs_IsAdBlocked", result)
             CrazyGamesJs._successCallback(result);
@@ -135,8 +150,64 @@ var LibCrazyGames = {
 
     CrazyGamesJs_SetItem: function(key, value) {
         window.CrazyGames.SDK.data.setItem(UTF8ToString(key), UTF8ToString(value));
-    }
+    },
 
+    CrazyGamesJs_IsUserAccountAvailable: function() {
+        return window.CrazyGames.SDK.user.isUserAccountAvailable;
+    },
+
+    CrazyGamesJs_GetUser: function() {
+        window.CrazyGames.SDK.user.getUser().then(user != null) {
+            const userJson = JSON.stringify(user);
+            console.log("Returning user as JSON", userJson);
+            CrazyGamesJs._authCallback(userJson);
+        }.catch((e) => {
+            console.log("Returning empty user");
+            CrazyGamesJs._authCallback(null);
+        });
+    },
+
+    CrazyGamesJs_GetUserToken: function() {
+        window.CrazyGames.SDK.user.getUserToken().then((token) => {
+            console.log("token", token);
+            return stringToUTF8OnStack(token);
+        }).catch ((e) => {
+            console.log("Error:", e);
+            return 0;
+        });
+    },
+
+    CrazyGamesJs_ShowAuthPrompt: function() {
+        window.CrazyGames.SDK.user.showAuthPrompt().then((user) = {
+            if (user != null) {
+                const userJson = JSON.stringify(user);
+                return stringToUTF8OnStack(userJson);
+            }
+            else {
+                return 0;
+            }
+        }).catch ((e) {
+            console.log("Error:", e);
+            return 0;
+        });
+    },
+    CrazyGamesJs_AddAuthListener: function(callback) {
+        CrazyGamesJs._luaAuthCallback = callback;
+        window.CrazyGames.SDK.user.addAuthListener(CrazyGamesJs._authCallback);
+    },
+
+    CrazyGamesJs_RemoveAuthListener: function() {
+        CrazyGamesJs._luaAuthCallback = null;
+        window.CrazyGames.SDK.user.removeAuthListener(CrazyGamesJs._authCallback);
+    },
+
+    CrazyGamesJs_ShowAccountLinkPrompt: function() {
+        window.CrazyGames.SDK.user.showAccountLinkPrompt().then((response) => {
+            console.log("response:", response);
+        }).then((e) => {
+            console.log("Error:", e);
+        });
+    }
 }
 
 autoAddDeps(LibCrazyGames, '$CrazyGamesJs');

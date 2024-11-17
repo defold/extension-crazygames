@@ -152,3 +152,72 @@
 
     - name: value
       type: string
+
+
+#*****************************************************************************************************
+
+  - name: is_user_account_available
+    type: function
+    desc: Before using any user account features, you should always ensure that the user account system is available.
+
+    returns:
+    - name: available
+      type: boolean
+
+
+#*****************************************************************************************************
+
+  - name: get_user
+    type: function
+    desc: Retrieve the user currently logged in CrazyGames. If the user is not logged in CrazyGames, the returned user will be null.
+
+    returns:
+    - name: user as json encoded string
+      type: string
+
+
+#*****************************************************************************************************
+
+  - name: get_user_token
+    type: function
+    desc: The user token contains the userId of the player that is currently logged in CrazyGames, as well as other useful information. You should send it to your server when required, and verify/decode it there to extract the userId
+
+    returns:
+    - name: token in jwt format
+      type: string
+
+
+#*****************************************************************************************************
+
+  - name: show_auth_prompt
+    type: function
+    desc: By calling this method, the log in or register popup will be displayed on CrazyGames. The user can log in their existing account, or create a new account.
+
+    returns:
+    - name: user as json encoded string
+      type: string
+
+
+#*****************************************************************************************************
+
+  - name: add_auth_listener
+    type: function
+    desc: You can register a user auth listener that is triggered when the player logs in CrazyGames. A log out doesn't trigger the auth listener, since the entire page is refreshed when the player logs out.
+
+    parameters:
+    - name: callback
+      type: function
+
+
+#*****************************************************************************************************
+
+  - name: remove_auth_listener
+    type: function
+    desc: Remove any previously set auth listener.
+
+
+#*****************************************************************************************************
+
+  - name: show_account_link_prompt
+    type: function
+    desc: Show an account linking prompt to link a CrazyGames account to the in-game account.

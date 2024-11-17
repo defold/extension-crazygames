@@ -6,16 +6,10 @@
 
 #if defined(DM_PLATFORM_HTML5)
 
-enum CrazyGamesCallbackType
-{
-    TYPE_MIDGAME,
-    TYPE_REWARDED,
-    TYPE_ISADBLOCKED
-};
-
 typedef void (*MidgameAdCallback)(int success);
 typedef void (*RewardedAdCallback)(int success);
 typedef void (*IsAdBlockedCallback)(int success);
+typedef void (*UserAuthCallback)(char* user);
 
 extern "C" {
 
@@ -44,82 +38,227 @@ extern "C" {
     char* CrazyGamesJs_GetItem(const char* key);
     void  CrazyGamesJs_RemoveItem(const char* key);
     void  CrazyGamesJs_SetItem(const char* key, const char* value);
-}
 
-static dmScript::LuaCallbackInfo* crazyGames_Callback = 0x0;
-
-static void CrazyGames_InvokeCallback(CrazyGamesCallbackType callbackType, int intArg, const char* charArg)
-{
-    if (!dmScript::IsCallbackValid(crazyGames_Callback))
-    {
-        dmLogError("CrazyGames callback is invalid.");
-        return;
-    }
-
-    lua_State* L = dmScript::GetCallbackLuaContext(crazyGames_Callback);
-
-    DM_LUA_STACK_CHECK(L, 0);
-
-    if (!dmScript::SetupCallback(crazyGames_Callback))
-    {
-        dmLogError("CrazyGames callback setup failed.");
-        return;
-    }
-
-    int numOfArgs = 0;
-
-    if ((callbackType == TYPE_MIDGAME)
-        || (callbackType == TYPE_REWARDED)
-        || (callbackType == TYPE_ISADBLOCKED))
-    {
-        lua_pushboolean(L, intArg);
-        numOfArgs += 1;
-    }
-
-    numOfArgs += 1;
-    int ret = dmScript::PCall(L, numOfArgs, 0);
-    (void)ret;
-
-    dmScript::TeardownCallback(crazyGames_Callback);
-
-    if (crazyGames_Callback != 0x0)
-    {
-        dmScript::DestroyCallback(crazyGames_Callback);
-        crazyGames_Callback = 0x0;
-    }
+    // User module
+    bool  CrazyGamesJs_IsUserAccountAvailable();
+    void  CrazyGamesJs_ShowAuthPrompt();
+    char* CrazyGamesJs_GetUser();
+    char* CrazyGamesJs_GetUserToken();
+    void  CrazyGamesJs_AddAuthListener(UserAuthCallback callback);
+    void  CrazyGamesJs_RemoveAuthListener();
+    void  CrazyGamesJs_ShowAccountLinkPrompt();
 }
 
 
 
-static int check_callback(lua_State* L, int index, char* funcname)
+static dmScript::LuaCallbackInfo* CrazyGames_CreateCallback(lua_State* L, int index, char* funcname)
 {
     if (!lua_isfunction(L, index))
     {
         luaL_error(L, "Expected argument %d when calling %s to be a callback function.", index, funcname);
         return 0;
     }
-    if (crazyGames_Callback != 0x0) {
-        dmLogWarning("CrazyGames callback already set when calling %s. Overwriting existing callback.", funcname);
-    }
-    crazyGames_Callback = dmScript::CreateCallback(L, index);
-    return 1;
+    return dmScript::CreateCallback(L, index);
 }
 
+/***********/
+/*** Ads ***/
+/***********/
+
+static dmScript::LuaCallbackInfo* crazyGames_AdCallback = 0x0;
+static void CrazyGames_InvokeAdCallback(bool success)
+{
+    if (!dmScript::IsCallbackValid(crazyGames_AdCallback))
+    {
+        dmLogError("CrazyGames ad callback is invalid.");
+        return;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(crazyGames_AdCallback);
+
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (!dmScript::SetupCallback(crazyGames_AdCallback))
+    {
+        dmLogError("CrazyGames ad callback setup failed.");
+        return;
+    }
+
+    lua_pushboolean(L, success);
+    int ret = dmScript::PCall(L, 2, 0);
+    (void)ret;
+
+    dmScript::TeardownCallback(crazyGames_AdCallback);
+    dmScript::DestroyCallback(crazyGames_AdCallback);
+    crazyGames_AdCallback = 0x0;
+}
 
 static void CrazyGames_MidgameAdCallback(int success)
 {
-    CrazyGames_InvokeCallback(TYPE_MIDGAME, success, 0);
+    CrazyGames_InvokeAdCallback(success);
 }
 
 static void CrazyGames_RewardedAdCallback(int success)
 {
-    CrazyGames_InvokeCallback(TYPE_REWARDED, success, 0);
+    CrazyGames_InvokeAdCallback(success);
 }
 
 static void CrazyGames_IsAdBlockedCallback(int success)
 {
-    CrazyGames_InvokeCallback(TYPE_ISADBLOCKED, success, 0);
+    CrazyGames_InvokeAdCallback(success);
 }
+
+static int CrazyGames_ShowMidgameAd(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (crazyGames_AdCallback = CrazyGames_CreateCallback(L, 1, "show_midgame_ad"))
+    {
+        CrazyGamesJs_ShowMidgameAd((MidgameAdCallback)CrazyGames_MidgameAdCallback);
+    }
+    return 0;
+}
+
+static int CrazyGames_ShowRewardedAd(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (crazyGames_AdCallback = CrazyGames_CreateCallback(L, 1, "show_rewarded_ad"))
+    {
+        CrazyGamesJs_ShowRewardedAd((RewardedAdCallback)CrazyGames_RewardedAdCallback);
+    }
+    return 0;
+}
+
+static int CrazyGames_IsAdBlocked(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (crazyGames_AdCallback = CrazyGames_CreateCallback(L, 1, "is_ad_blocked"))
+    {
+        CrazyGamesJs_IsAdBlocked((IsAdBlockedCallback)CrazyGames_IsAdBlockedCallback);
+    }
+    return 0;
+}
+
+/************/
+/*** Auth ***/
+/************/
+
+static dmScript::LuaCallbackInfo* crazyGames_AuthCallback = 0x0;
+static void CrazyGames_InvokeAuthCallback(const char* user)
+{
+    if (!dmScript::IsCallbackValid(crazyGames_AuthCallback))
+    {
+        dmLogError("CrazyGames auth callback is invalid.");
+        return;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(crazyGames_AuthCallback);
+
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (!dmScript::SetupCallback(crazyGames_AuthCallback))
+    {
+        dmLogError("CrazyGames auth callback setup failed.");
+        return;
+    }
+
+    if (user)
+    {
+        const size_t user_length = strlen(user);
+        dmScript::JsonToLua(L, user, user_length);
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+
+    int ret = dmScript::PCall(L, 2, 0);
+    (void)ret;
+
+    dmScript::TeardownCallback(crazyGames_AuthCallback);
+}
+
+static void CrazyGames_UserAuthCallback(char* user)
+{
+    CrazyGames_InvokeAuthCallback(user);
+}
+
+static int CrazyGames_IsUserAccountAvailable(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    bool available = CrazyGamesJs_IsUserAccountAvailable();
+    lua_pushboolean(L, available);
+    return 1;
+}
+
+static int CrazyGames_GetUser(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    const char* user_json = CrazyGamesJs_GetUser();
+    dmLogInfo("CrazyGames_GetUser %s", user_json);
+    if (user_json)
+    {
+        const size_t user_length = strlen(user_json);
+        dmScript::JsonToLua(L, user_json, user_length);
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int CrazyGames_ShowAuthPrompt(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    const char* user_json = CrazyGamesJs_ShowAuthPrompt();
+    if (user_json)
+    {
+        const size_t user_length = strlen(user_json);
+        dmScript::JsonToLua(L, user_json, user_length);
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int CrazyGames_GetUserToken(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    const char* token = CrazyGamesJs_GetUserToken();
+    lua_pushstring(L, token);
+    return 1;
+}
+
+static int CrazyGames_AddAuthListener(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (crazyGames_AuthCallback = CrazyGames_CreateCallback(L, 1, "add_auth_listener"))
+    {
+        CrazyGamesJs_AddAuthListener((UserAuthCallback)CrazyGames_UserAuthCallback);
+    }
+    return 0;
+}
+
+static int CrazyGames_RemoveAuthListener(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_RemoveAuthListener();
+    return 0;
+}
+
+static int CrazyGames_ShowAccountLinkPrompt(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    bool result = CrazyGamesJs_ShowAccountLinkPrompt();
+    lua_pushboolean(L, result);
+    return 1;
+}
+
+/**************/
+/*** Events ***/
+/**************/
 
 static int CrazyGames_LoadingStart(lua_State* L)
 {
@@ -156,35 +295,9 @@ static int CrazyGames_HappyTime(lua_State* L)
     return 0;
 }
 
-static int CrazyGames_ShowMidgameAd(lua_State* L)
-{
-    DM_LUA_STACK_CHECK(L, 0);
-    if (check_callback(L, 1, "show_midgame_ad"))
-    {
-        CrazyGamesJs_ShowMidgameAd((MidgameAdCallback)CrazyGames_MidgameAdCallback);
-    }
-    return 0;
-}
-
-static int CrazyGames_ShowRewardedAd(lua_State* L)
-{
-    DM_LUA_STACK_CHECK(L, 0);
-    if (check_callback(L, 1, "show_rewarded_ad"))
-    {
-        CrazyGamesJs_ShowRewardedAd((RewardedAdCallback)CrazyGames_RewardedAdCallback);
-    }
-    return 0;
-}
-
-static int CrazyGames_IsAdBlocked(lua_State* L)
-{
-    DM_LUA_STACK_CHECK(L, 0);
-    if (check_callback(L, 1, "is_ad_blocked"))
-    {
-        CrazyGamesJs_IsAdBlocked((IsAdBlockedCallback)CrazyGames_IsAdBlockedCallback);
-    }
-    return 0;
-}
+/***************/
+/*** Invites ***/
+/***************/
 
 static void CrazyGames_SetInviteLinkParams(lua_State* L, int index) {
     luaL_checktype(L, index, LUA_TTABLE);
@@ -240,7 +353,6 @@ static int CrazyGames_HideInviteButton(lua_State* L)
     return 0;
 }
 
-
 static int CrazyGames_GetInviteParam(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 1);
@@ -249,6 +361,10 @@ static int CrazyGames_GetInviteParam(lua_State* L)
     lua_pushstring(L, value);
     return 1;
 }
+
+/**************/
+/*** Data ***/
+/**************/
 
 static int CrazyGames_Clear(lua_State* L)
 {
@@ -291,25 +407,37 @@ static int CrazyGames_SetItem(lua_State* L)
 }
 
 
+
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] =
 {
-    {"gameplay_start",     CrazyGames_GameplayStart},
-    {"gameplay_stop",      CrazyGames_GameplayStop},
-    {"loading_start",      CrazyGames_LoadingStart},
-    {"loading_stop",       CrazyGames_LoadingStop},
-    {"show_midgame_ad",    CrazyGames_ShowMidgameAd},
-    {"show_rewarded_ad",   CrazyGames_ShowRewardedAd},
-    {"happytime",          CrazyGames_HappyTime},
-    {"is_ad_blocked",      CrazyGames_IsAdBlocked},
-    {"show_invite_button", CrazyGames_ShowInviteButton},
-    {"hide_invite_button", CrazyGames_HideInviteButton},
-    {"get_invite_param",   CrazyGames_GetInviteParam},
-    {"invite_link",        CrazyGames_InviteLink},
-    {"clear_data",         CrazyGames_Clear},
-    {"get_item",           CrazyGames_GetItem},
-    {"remove_item",        CrazyGames_RemoveItem},
-    {"set_item",           CrazyGames_SetItem},
+    // game
+    {"gameplay_start",             CrazyGames_GameplayStart},
+    {"gameplay_stop",              CrazyGames_GameplayStop},
+    {"loading_start",              CrazyGames_LoadingStart},
+    {"loading_stop",               CrazyGames_LoadingStop},
+    {"happytime",                  CrazyGames_HappyTime},
+    {"show_invite_button",         CrazyGames_ShowInviteButton},
+    {"hide_invite_button",         CrazyGames_HideInviteButton},
+    {"get_invite_param",           CrazyGames_GetInviteParam},
+    {"invite_link",                CrazyGames_InviteLink},
+    // ads
+    {"show_midgame_ad",            CrazyGames_ShowMidgameAd},
+    {"show_rewarded_ad",           CrazyGames_ShowRewardedAd},
+    {"is_ad_blocked",              CrazyGames_IsAdBlocked},
+    // data
+    {"clear_data",                 CrazyGames_Clear},
+    {"get_item",                   CrazyGames_GetItem},
+    {"remove_item",                CrazyGames_RemoveItem},
+    {"set_item",                   CrazyGames_SetItem},
+    // user
+    {"is_user_account_available",  CrazyGames_IsUserAccountAvailable},
+    {"get_user",                   CrazyGames_GetUser},
+    {"get_user_token",             CrazyGames_GetUserToken},
+    {"show_auth_prompt",           CrazyGames_ShowAuthPrompt},
+    {"add_auth_listener",          CrazyGames_AddAuthListener},
+    {"remove_auth_listener",       CrazyGames_RemoveAuthListener},
+    {"show_account_link_prompt",   CrazyGames_ShowAccountLinkPrompt},
     {0, 0}
 };
 

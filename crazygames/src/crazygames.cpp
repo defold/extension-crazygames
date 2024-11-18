@@ -9,7 +9,7 @@
 typedef void (*MidgameAdCallback)(int success);
 typedef void (*RewardedAdCallback)(int success);
 typedef void (*IsAdBlockedCallback)(int success);
-typedef void (*UserAuthCallback)(char* user);
+typedef void (*UserAuthCallback)(char* user, char* token);
 
 extern "C" {
 
@@ -44,11 +44,11 @@ extern "C" {
     // User module
     bool  CrazyGamesJs_IsUserAccountAvailable();
     void  CrazyGamesJs_ShowAuthPrompt();
-    char* CrazyGamesJs_GetUser();
-    char* CrazyGamesJs_GetUserToken();
-    void  CrazyGamesJs_AddAuthListener(UserAuthCallback callback);
+    void  CrazyGamesJs_GetUser();
+    void  CrazyGamesJs_GetUserToken();
+    void  CrazyGamesJs_SetAuthListener(UserAuthCallback callback);
     void  CrazyGamesJs_RemoveAuthListener();
-    void  CrazyGamesJs_ShowAccountLinkPrompt();
+    bool  CrazyGamesJs_ShowAccountLinkPrompt();
 }
 
 
@@ -145,7 +145,7 @@ static int CrazyGames_IsAdBlocked(lua_State* L)
 /************/
 
 static dmScript::LuaCallbackInfo* crazyGames_AuthCallback = 0x0;
-static void CrazyGames_InvokeAuthCallback(const char* user)
+static void CrazyGames_InvokeAuthCallback(const char* user, const char* token)
 {
     if (!dmScript::IsCallbackValid(crazyGames_AuthCallback))
     {
@@ -168,6 +168,10 @@ static void CrazyGames_InvokeAuthCallback(const char* user)
         const size_t user_length = strlen(user);
         dmScript::JsonToLua(L, user, user_length);
     }
+    else if (token)
+    {
+        lua_pushstring(L, token);
+    }
     else
     {
         lua_pushnil(L);
@@ -179,9 +183,9 @@ static void CrazyGames_InvokeAuthCallback(const char* user)
     dmScript::TeardownCallback(crazyGames_AuthCallback);
 }
 
-static void CrazyGames_UserAuthCallback(char* user)
+static void CrazyGames_UserAuthCallback(char* user, char* token)
 {
-    CrazyGames_InvokeAuthCallback(user);
+    CrazyGames_InvokeAuthCallback(user, token);
 }
 
 static int CrazyGames_IsUserAccountAvailable(lua_State* L)
@@ -194,51 +198,31 @@ static int CrazyGames_IsUserAccountAvailable(lua_State* L)
 
 static int CrazyGames_GetUser(lua_State* L)
 {
-    DM_LUA_STACK_CHECK(L, 1);
-    const char* user_json = CrazyGamesJs_GetUser();
-    dmLogInfo("CrazyGames_GetUser %s", user_json);
-    if (user_json)
-    {
-        const size_t user_length = strlen(user_json);
-        dmScript::JsonToLua(L, user_json, user_length);
-    }
-    else
-    {
-        lua_pushnil(L);
-    }
-    return 1;
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_GetUser();
+    return 0;
 }
 
 static int CrazyGames_ShowAuthPrompt(lua_State* L)
 {
-    DM_LUA_STACK_CHECK(L, 1);
-    const char* user_json = CrazyGamesJs_ShowAuthPrompt();
-    if (user_json)
-    {
-        const size_t user_length = strlen(user_json);
-        dmScript::JsonToLua(L, user_json, user_length);
-    }
-    else
-    {
-        lua_pushnil(L);
-    }
-    return 1;
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_ShowAuthPrompt();
+    return 0;
 }
 
 static int CrazyGames_GetUserToken(lua_State* L)
 {
-    DM_LUA_STACK_CHECK(L, 1);
-    const char* token = CrazyGamesJs_GetUserToken();
-    lua_pushstring(L, token);
-    return 1;
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_GetUserToken();
+    return 0;
 }
 
-static int CrazyGames_AddAuthListener(lua_State* L)
+static int CrazyGames_SetAuthListener(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    if (crazyGames_AuthCallback = CrazyGames_CreateCallback(L, 1, "add_auth_listener"))
+    if (crazyGames_AuthCallback = CrazyGames_CreateCallback(L, 1, "set_auth_listener"))
     {
-        CrazyGamesJs_AddAuthListener((UserAuthCallback)CrazyGames_UserAuthCallback);
+        CrazyGamesJs_SetAuthListener((UserAuthCallback)CrazyGames_UserAuthCallback);
     }
     return 0;
 }
@@ -454,7 +438,7 @@ static const luaL_reg Module_methods[] =
     {"get_user",                   CrazyGames_GetUser},
     {"get_user_token",             CrazyGames_GetUserToken},
     {"show_auth_prompt",           CrazyGames_ShowAuthPrompt},
-    {"add_auth_listener",          CrazyGames_AddAuthListener},
+    {"set_auth_listener",          CrazyGames_SetAuthListener},
     {"remove_auth_listener",       CrazyGames_RemoveAuthListener},
     {"show_account_link_prompt",   CrazyGames_ShowAccountLinkPrompt},
     {0, 0}

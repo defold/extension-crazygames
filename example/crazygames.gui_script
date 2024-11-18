@@ -14,7 +14,7 @@ function init(self)
 			log(self, "is_ad_blocked: %s", tostring(blocked))
 		end)
 
-		crazygames.add_auth_listener(function(self, user)
+		crazygames.set_auth_listener(function(_, user)
 			print("auth listener")
 			pprint(user)
 		end)
@@ -131,14 +131,22 @@ function on_input(self, action_id, action)
 
 	dirtylarry:button("get_user", action_id, action, function()
 		if crazygames.is_user_account_available() then
-			local user = crazygames.get_user()
-			pprint("User", user)
-			log(self, "crazygames.get_user() = %s", json.encode(user))
+			crazygames.get_user()
+			log(self, "crazygames.get_user()")
 		else
 			log(self, "user account is not available")
 		end
 	end)
 
+	dirtylarry:button("get_user_token", action_id, action, function()
+		if crazygames.is_user_account_available() then
+			crazygames.get_user_token()
+			log(self, "crazygames.get_user_token()")
+		else
+			log(self, "user account is not available")
+		end
+	end)
+	
 	dirtylarry:button("show_auth_prompt", action_id, action, function()
 		print("Show auth prompt")
 		crazygames.show_auth_prompt()

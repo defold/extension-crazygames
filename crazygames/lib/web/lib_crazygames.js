@@ -8,28 +8,36 @@ var LibCrazyGames = {
         _inviteLinkParams: null,
 
         _successCallback: function(success) {
-            console.log("_successCallback", success, CrazyGamesJs._callback);
-            if (_luaCallback == null) return;
+            console.log("_successCallback", success, CrazyGamesJs._luaCallback);
+            if (CrazyGamesJs._luaCallback == null) return;
             var msg = success ? 1 : 0;
             {{{ makeDynCall("vi", "CrazyGamesJs._luaCallback")}}}(msg);
         },
 
         _errorCallback: function(error) {
-            console.log("_errorCallback", error, CrazyGamesJs._callback);
-            if (_luaCallback == null) return;
+            console.log("_errorCallback", error, CrazyGamesJs._luaCallback);
+            if (CrazyGamesJs._luaCallback == null) return;
             {{{ makeDynCall("vi", "CrazyGamesJs._luaCallback")}}}(0);
+        },
+
+        _callAuthCallback: function(user, token) {
+            console.log("_callAuthCallback", user, token);
+            if (CrazyGamesJs._luaAuthCallback == null) return;
+            if (user != null) {
+                const userJson = JSON.stringify(user);
+                {{{ makeDynCall("vii", "CrazyGamesJs._luaAuthCallback")}}}(stringToUTF8OnStack(userJson), 0);
+            }
+            else if (token != null) {
+                {{{ makeDynCall("vii", "CrazyGamesJs._luaAuthCallback")}}}(0, stringToUTF8OnStack(token));
+            }
+            else {
+                {{{ makeDynCall("vii", "CrazyGamesJs._luaAuthCallback")}}}(0, 0);
+            }
         },
 
         _authCallback: function(user) {
             console.log("_authCallback", user);
-            if (_luaAuthCallback == null) return;
-            if (user != null) {
-                const userJson = JSON.stringify(user);
-                {{{ makeDynCall("vi", "CrazyGamesJs._luaAuthCallback")}}}(stringToUTF8OnStack(userJson));
-            }
-            else {
-                {{{ makeDynCall("vi", "CrazyGamesJs._luaAuthCallback")}}}(stringToUTF8OnStack(""));
-            }
+            CrazyGamesJs._callAuthCallback(user, null);
         }
     },
 
@@ -185,41 +193,29 @@ var LibCrazyGames = {
     },
 
     CrazyGamesJs_GetUser: function() {
-        window.CrazyGames.SDK.user.getUser().then(user != null) {
-            const userJson = JSON.stringify(user);
-            console.log("Returning user as JSON", userJson);
-            CrazyGamesJs._authCallback(userJson);
-        }.catch((e) => {
+        window.CrazyGames.SDK.user.getUser().then((user) => {
+            CrazyGamesJs._callAuthCallback(user, null);
+        }).catch((e) => {
             console.log("Returning empty user");
-            CrazyGamesJs._authCallback(null);
+            CrazyGamesJs._callAuthCallback(null, null);
         });
     },
 
     CrazyGamesJs_GetUserToken: function() {
         window.CrazyGames.SDK.user.getUserToken().then((token) => {
             console.log("token", token);
-            return stringToUTF8OnStack(token);
+            CrazyGamesJs._callAuthCallback(null, token);
         }).catch ((e) => {
             console.log("Error:", e);
-            return 0;
+            CrazyGamesJs._callAuthCallback(null, null);
         });
     },
 
     CrazyGamesJs_ShowAuthPrompt: function() {
-        window.CrazyGames.SDK.user.showAuthPrompt().then((user) = {
-            if (user != null) {
-                const userJson = JSON.stringify(user);
-                return stringToUTF8OnStack(userJson);
-            }
-            else {
-                return 0;
-            }
-        }).catch ((e) {
-            console.log("Error:", e);
-            return 0;
-        });
+        window.CrazyGames.SDK.user.showAuthPrompt();
     },
-    CrazyGamesJs_AddAuthListener: function(callback) {
+
+    CrazyGamesJs_SetAuthListener: function(callback) {
         CrazyGamesJs._luaAuthCallback = callback;
         window.CrazyGames.SDK.user.addAuthListener(CrazyGamesJs._authCallback);
     },

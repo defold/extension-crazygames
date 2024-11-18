@@ -524,7 +524,7 @@ nodes {
 }
 nodes {
   position {
-    x: 161.0
+    x: 170.0
     y: 151.0
   }
   type: TYPE_TEMPLATE
@@ -590,6 +590,40 @@ nodes {
   overridden_fields: 8
   template_node_child: true
 }
+nodes {
+  position {
+    x: 790.0
+    y: 151.0
+  }
+  type: TYPE_TEMPLATE
+  id: "get_user_token"
+  inherit_alpha: true
+  template: "/dirtylarry/button.gui"
+}
+nodes {
+  size {
+    x: 300.0
+    y: 60.0
+  }
+  type: TYPE_BOX
+  id: "get_user_token/larrybutton"
+  parent: "get_user_token"
+  overridden_fields: 4
+  template_node_child: true
+}
+nodes {
+  size {
+    x: 200.0
+    y: 66.0
+  }
+  type: TYPE_TEXT
+  text: "get_user_token"
+  id: "get_user_token/larrylabel"
+  parent: "get_user_token/larrybutton"
+  overridden_fields: 4
+  overridden_fields: 8
+  template_node_child: true
+}
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT
-max_nodes: 45
+max_nodes: 48

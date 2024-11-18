@@ -226,7 +226,7 @@
 
 #*****************************************************************************************************
 
-  - name: add_auth_listener
+  - name: set_auth_listener
     type: function
     desc: You can register a user auth listener that is triggered when the player logs in CrazyGames. A log out doesn't trigger the auth listener, since the entire page is refreshed when the player logs out.
 

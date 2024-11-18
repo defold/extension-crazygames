@@ -13,6 +13,8 @@ function init(self)
 			print("is_ad_blocked", blocked)
 			log(self, "is_ad_blocked: %s", tostring(blocked))
 		end)
+
+		crazygames.request_banner("banner-container", 728, 90)
 	else
 		log(self, "This example only works on HTML5")
 	end

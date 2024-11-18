@@ -135,6 +135,34 @@ var LibCrazyGames = {
 
     CrazyGamesJs_SetItem: function(key, value) {
         window.CrazyGames.SDK.data.setItem(UTF8ToString(key), UTF8ToString(value));
+    },
+
+    CrazyGamesJs_RequestBanner: async function(div, width, height) {
+        try {
+            const name = UTF8ToString(div);
+            const element = document.getElementById(name);
+            element.style.width = width;
+            element.style.height = height;
+            // await is not mandatory when requesting banners, but it will allow you to catch errors
+            await window.CrazyGames.SDK.banner.requestBanner({
+                id: name,
+                width: width,
+                height: height,
+            });
+        } catch (e) {
+            console.log("Banner request error", e);
+        }
+    },
+
+    CrazyGamesJs_RequestResponsiveBanner: async function(div) {
+        try {
+            // await is not mandatory when requesting banners, but it will allow you to catch errors
+            await window.CrazyGames.SDK.banner.requestResponsiveBanner({
+                id: UTF8ToString(div)
+            });
+        } catch (e) {
+            console.log("Responsive banner request error", e);
+        }
     }
 
 }

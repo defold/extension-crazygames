@@ -32,6 +32,8 @@ extern "C" {
     void  CrazyGamesJs_ShowMidgameAd(MidgameAdCallback callback);
     void  CrazyGamesJs_ShowRewardedAd(RewardedAdCallback callback);
     void  CrazyGamesJs_IsAdBlocked(IsAdBlockedCallback callback);
+    void  CrazyGamesJs_RequestBanner(const char* div, int32_t width, int32_t height);
+    void  CrazyGamesJs_RequestResponsiveBanner(const char* div);
 
     // Data module
     void  CrazyGamesJs_ClearData();
@@ -406,6 +408,21 @@ static int CrazyGames_SetItem(lua_State* L)
     return 0;
 }
 
+static int CrazyGames_RequestBanner(lua_State* L) {
+    DM_LUA_STACK_CHECK(L, 0);
+    const char* div = luaL_checkstring(L, 1);
+    int width = luaL_checknumber(L, 2);
+    int height = luaL_checknumber(L, 3);
+    CrazyGamesJs_RequestBanner(div, width, height);
+    return 0;
+}
+
+static int CrazyGames_RequestResponsiveBanner(lua_State* L) {
+    DM_LUA_STACK_CHECK(L, 0);
+    const char* div = luaL_checkstring(L, 1);
+    CrazyGamesJs_RequestResponsiveBanner(div);
+    return 0;
+}
 
 
 // Functions exposed to Lua
@@ -425,6 +442,8 @@ static const luaL_reg Module_methods[] =
     {"show_midgame_ad",            CrazyGames_ShowMidgameAd},
     {"show_rewarded_ad",           CrazyGames_ShowRewardedAd},
     {"is_ad_blocked",              CrazyGames_IsAdBlocked},
+    {"request_banner",             CrazyGames_RequestBanner},
+    {"request_responsive_banner",  CrazyGames_RequestResponsiveBanner},
     // data
     {"clear_data",                 CrazyGames_Clear},
     {"get_item",                   CrazyGames_GetItem},

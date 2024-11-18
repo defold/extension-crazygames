@@ -18,6 +18,8 @@ function init(self)
 			print("auth listener")
 			pprint(user)
 		end)
+
+		crazygames.request_banner("banner-container", 728, 90)
 	else
 		log(self, "This example only works on HTML5")
 	end

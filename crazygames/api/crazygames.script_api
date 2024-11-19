@@ -236,7 +236,7 @@
 
     parameters:
     - name: callback
-      desc: The function takes three arguments: self, user, token
+      desc: The function takes three arguments self, user and token
       type: function
 
 

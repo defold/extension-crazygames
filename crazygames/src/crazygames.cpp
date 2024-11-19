@@ -169,7 +169,11 @@ static void CrazyGames_InvokeAuthCallback(const char* user, const char* token)
         const size_t user_length = strlen(user);
         dmScript::JsonToLua(L, user, user_length);
     }
-    else if (token)
+    else {
+        lua_pushnil(L);
+    }
+    
+    if (token)
     {
         lua_pushstring(L, token);
     }
@@ -178,7 +182,7 @@ static void CrazyGames_InvokeAuthCallback(const char* user, const char* token)
         lua_pushnil(L);
     }
 
-    int ret = dmScript::PCall(L, 2, 0);
+    int ret = dmScript::PCall(L, 3, 0);
     (void)ret;
 
     dmScript::TeardownCallback(crazyGames_AuthCallback);

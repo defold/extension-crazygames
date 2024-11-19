@@ -87,6 +87,16 @@
 
 #*****************************************************************************************************
 
+  - name: clear_banner
+    type: function
+    desc: Clear a banner. Will also hide it.
+
+    parameters:
+    - name: div
+      type: string
+
+#*****************************************************************************************************
+
   - name: invite_link
     type: function
     desc: Create a link to your game to invite others to join a multiplayer game.
@@ -195,43 +205,32 @@
 
   - name: get_user
     type: function
-    desc: Retrieve the user currently logged in CrazyGames. If the user is not logged in CrazyGames, the returned user will be null.
-
-    returns:
-    - name: user as json encoded string
-      type: string
+    desc: Retrieve the user currently logged in CrazyGames. If the user is not logged in CrazyGames, the returned user will be null. Will call the auth listener with the logged in user account.
 
 
 #*****************************************************************************************************
 
   - name: get_user_token
     type: function
-    desc: The user token contains the userId of the player that is currently logged in CrazyGames, as well as other useful information. You should send it to your server when required, and verify/decode it there to extract the userId
-
-    returns:
-    - name: token in jwt format
-      type: string
+    desc: The user token is in JWT format and contains the userId of the player that is currently logged in to CrazyGames, as well as other useful information. You should send it to your server when required, and verify/decode it there to extract the userId. Will call the auth listener with the token.
 
 
 #*****************************************************************************************************
 
   - name: show_auth_prompt
     type: function
-    desc: By calling this method, the log in or register popup will be displayed on CrazyGames. The user can log in their existing account, or create a new account.
-
-    returns:
-    - name: user as json encoded string
-      type: string
+    desc: By calling this method, the log in or register popup will be displayed on CrazyGames. The user can log in their existing account, or create a new account. Will call the auth listener on log in.
 
 
 #*****************************************************************************************************
 
   - name: set_auth_listener
     type: function
-    desc: You can register a user auth listener that is triggered when the player logs in CrazyGames. A log out doesn't trigger the auth listener, since the entire page is refreshed when the player logs out.
+    desc: You can register a user auth listener that is triggered when the player logs in to CrazyGames. A log out doesn't trigger the auth listener, since the entire page is refreshed when the player logs out.
 
     parameters:
     - name: callback
+      desc: The function takes three arguments: self, user, token
       type: function
 
 

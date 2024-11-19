@@ -166,6 +166,7 @@ var LibCrazyGames = {
             const element = document.getElementById(name);
             element.style.width = width;
             element.style.height = height;
+            element.style.display = "block";
             // await is not mandatory when requesting banners, but it will allow you to catch errors
             await window.CrazyGames.SDK.banner.requestBanner({
                 id: name,
@@ -179,6 +180,9 @@ var LibCrazyGames = {
 
     CrazyGamesJs_RequestResponsiveBanner: async function(div) {
         try {
+            const name = UTF8ToString(div);
+            const element = document.getElementById(name);
+            element.style.display = "block";
             // await is not mandatory when requesting banners, but it will allow you to catch errors
             await window.CrazyGames.SDK.banner.requestResponsiveBanner({
                 id: UTF8ToString(div)
@@ -186,6 +190,13 @@ var LibCrazyGames = {
         } catch (e) {
             console.log("Responsive banner request error", e);
         }
+    },
+
+    CrazyGamesJs_ClearBanner: function(div) {
+        const name = UTF8ToString(div);
+        const element = document.getElementById(name);
+        element.style.display = "none";
+        window.CrazyGames.SDK.banner.clearBanner(name);
     },
 
     CrazyGamesJs_IsUserAccountAvailable: function() {

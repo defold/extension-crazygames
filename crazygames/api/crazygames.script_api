@@ -63,7 +63,7 @@
 
   - name: request_banner
     type: function
-    desc: Show a banner.
+    desc: Request a banner. The container will be resized to the specified width.
 
     parameters:
     - name: div
@@ -94,6 +94,12 @@
     parameters:
     - name: div
       type: string
+
+#*****************************************************************************************************
+
+  - name: clear_all_banners
+    type: function
+    desc: Clear all banners.
 
 #*****************************************************************************************************
 

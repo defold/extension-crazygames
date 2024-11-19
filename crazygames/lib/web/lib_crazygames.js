@@ -77,13 +77,11 @@ var LibCrazyGames = {
         window.CrazyGames.SDK.ad.requestAd("rewarded", callbacks);
     },
 
-    CrazyGamesJs_IsAdBlocked: function(callback) {
+    CrazyGamesJs_HasAdBlock: function(callback) {
         CrazyGamesJs._luaCallback = callback;
         window.CrazyGames.SDK.ad.hasAdblock().then((result) => {
-            // console.log("CrazyGamesJs_IsAdBlocked", result)
             CrazyGamesJs._successCallback(result);
         }).catch((error) => {
-            // console.log("CrazyGamesJs_IsAdBlocked error", error)
             CrazyGamesJs._errorCallback(error);
         });
     },
@@ -197,6 +195,10 @@ var LibCrazyGames = {
         const element = document.getElementById(name);
         element.style.display = "none";
         window.CrazyGames.SDK.banner.clearBanner(name);
+    },
+
+    CrazyGamesJs_ClearAllBanners: function() {
+        window.CrazyGames.SDK.banner.clearAllBanners();
     },
 
     CrazyGamesJs_IsUserAccountAvailable: function() {

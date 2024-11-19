@@ -8,7 +8,7 @@
 
 typedef void (*MidgameAdCallback)(int success);
 typedef void (*RewardedAdCallback)(int success);
-typedef void (*IsAdBlockedCallback)(int success);
+typedef void (*HasAdBlockCallback)(int success);
 typedef void (*UserAuthCallback)(char* user, char* token);
 
 extern "C" {
@@ -31,10 +31,11 @@ extern "C" {
     // Ads module
     void  CrazyGamesJs_ShowMidgameAd(MidgameAdCallback callback);
     void  CrazyGamesJs_ShowRewardedAd(RewardedAdCallback callback);
-    void  CrazyGamesJs_IsAdBlocked(IsAdBlockedCallback callback);
+    void  CrazyGamesJs_HasAdBlock(HasAdBlockCallback callback);
     void  CrazyGamesJs_RequestBanner(const char* div, int32_t width, int32_t height);
     void  CrazyGamesJs_RequestResponsiveBanner(const char* div);
     void  CrazyGamesJs_ClearBanner(const char* div);
+    void  CrazyGamesJs_ClearAllBanners();
 
     // Data module
     void  CrazyGamesJs_ClearData();
@@ -106,7 +107,7 @@ static void CrazyGames_RewardedAdCallback(int success)
     CrazyGames_InvokeAdCallback(success);
 }
 
-static void CrazyGames_IsAdBlockedCallback(int success)
+static void CrazyGames_HasAdBlockCallback(int success)
 {
     CrazyGames_InvokeAdCallback(success);
 }
@@ -131,12 +132,12 @@ static int CrazyGames_ShowRewardedAd(lua_State* L)
     return 0;
 }
 
-static int CrazyGames_IsAdBlocked(lua_State* L)
+static int CrazyGames_HasAdBlock(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    if (crazyGames_AdCallback = CrazyGames_CreateCallback(L, 1, "is_ad_blocked"))
+    if (crazyGames_AdCallback = CrazyGames_CreateCallback(L, 1, "has_ad_block"))
     {
-        CrazyGamesJs_IsAdBlocked((IsAdBlockedCallback)CrazyGames_IsAdBlockedCallback);
+        CrazyGamesJs_HasAdBlock((HasAdBlockCallback)CrazyGames_HasAdBlockCallback);
     }
     return 0;
 }
@@ -420,6 +421,12 @@ static int CrazyGames_ClearBanner(lua_State* L) {
     return 0;
 }
 
+static int CrazyGames_ClearAllBanners(lua_State* L) {
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_ClearAllBanners();
+    return 0;
+}
+
 
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] =
@@ -437,10 +444,11 @@ static const luaL_reg Module_methods[] =
     // ads
     {"show_midgame_ad",            CrazyGames_ShowMidgameAd},
     {"show_rewarded_ad",           CrazyGames_ShowRewardedAd},
-    {"is_ad_blocked",              CrazyGames_IsAdBlocked},
+    {"has_ad_block",               CrazyGames_HasAdBlock},
     {"request_banner",             CrazyGames_RequestBanner},
     {"request_responsive_banner",  CrazyGames_RequestResponsiveBanner},
     {"clear_banner",               CrazyGames_ClearBanner},
+    {"clear_all_banners",          CrazyGames_ClearAllBanners},
     // data
     {"clear_data",                 CrazyGames_Clear},
     {"get_item",                   CrazyGames_GetItem},

@@ -38,7 +38,7 @@ The SDK has the following modules:
 You can use the CrazyGames QATool to test your SDK implementation. You can use the [standalone version](https://developer.crazygames.com/qatool) without creating a submission. With the QATool you can:
 
 * Run your game as it would on Crazygames.
-* Try out the main different resolutions that we use on the site.
+* Try out the main different resolutions that are used on the site.
 * Test all the SDK features that you implemented and get feedback about it.
 
 ## Source code

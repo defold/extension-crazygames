@@ -25,8 +25,8 @@ print("User account system available", available);
 You can register user auth listeners that are triggered when the player logs in CrazyGames. A log out doesn't trigger the auth listeners, since the entire page is refreshed when the player logs out
 
 ```lua
-crazygames.set_auth_listener(function(self, user, token)
-  -- handle user or token
+crazygames.set_auth_listener(function(self, user)
+  -- handle user
 end)
 
 crazygames.remove_auth_listener()
@@ -42,11 +42,9 @@ If you rely on the [data module](data) or [automatic progress save](https://docs
 You can retrieve the user currently logged in CrazyGames with the following method:
 
 ```lua
-crazygames.set_auth_listener(function(self, user, token)
+crazygames.get_user(function(self, user)
   print(user.username, user.profilePictureUrl)
 end)
-
-crazygames.get_user()
 ```
 
 If the user is not logged in CrazyGames, the returned user will be nil.
@@ -66,11 +64,9 @@ The returned user object will look like this:
 By calling this method, the log in or register popup will be displayed on CrazyGames. The user can log in their existing account, or create a new account.
 
 ```lua
-crazygames.set_auth_listener(function(self, user, token)
+crazygames.show_auth_prompt(function(self, user)
   print(user.username, user.profilePictureUrl)
 end)
-
-crazygames.show_auth_prompt()
 ```
 
 
@@ -79,11 +75,9 @@ crazygames.show_auth_prompt()
 The user token contains the userId of the player that is currently logged in CrazyGames, as well as other useful information (username, profilePictureUrl, etc). You should send it to your server when required, and verify/decode it there to extract the userId. This is useful for linking the user accounts for example, where you can have a column "crazyGamesId" in your user table that will be populated with the user id from the token.
 
 ```lua
-crazygames.set_auth_listener(function(self, user, token)
+crazygames.get_user_token(function(self, token)
   print(token)
 end)
-
-crazygames.get_user_token()
 ```
 
 The token has a lifetime of 1 hour. The method will handle the token refresh. We recommend that you don't store the token, and always call this method when the token is required.

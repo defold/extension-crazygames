@@ -10,13 +10,13 @@ function init(self)
 	msg.post(".", "acquire_input_focus")
 
 	if html5 then
-		crazygames.is_ad_blocked(function(_, blocked)
-			log(self, "is_ad_blocked: %s", tostring(blocked))
+		crazygames.has_ad_block(function(_, blocked)
+			log(self, "has_ad_block: %s", tostring(blocked))
 		end)
 
-		crazygames.set_auth_listener(function(_, user, token)
+		crazygames.set_auth_listener(function(_, user)
 			pprint(user)
-			log(self, "user '%s' token '%s'", (user and user.username or ""), (token or ""))
+			log(self, "user '%s'", (user and user.username or ""))
 		end)
 
 		crazygames.request_banner("banner-container", 728, 90)
@@ -131,8 +131,11 @@ function on_input(self, action_id, action)
 
 	dirtylarry:button("get_user", action_id, action, function()
 		if crazygames.is_user_account_available() then
-			crazygames.get_user()
 			log(self, "crazygames.get_user()")
+			crazygames.get_user(function(self, user)
+				pprint(user)
+				log(self, "user '%s'", (user and user.username or ""))
+			end)
 		else
 			log(self, "user account is not available")
 		end
@@ -140,15 +143,21 @@ function on_input(self, action_id, action)
 
 	dirtylarry:button("get_user_token", action_id, action, function()
 		if crazygames.is_user_account_available() then
-			crazygames.get_user_token()
 			log(self, "crazygames.get_user_token()")
+			crazygames.get_user_token(function(self, token)
+				pprint(user)
+				log(self, "token '%s'", token)
+			end)
 		else
 			log(self, "user account is not available")
 		end
 	end)
 	
 	dirtylarry:button("show_auth_prompt", action_id, action, function()
-		crazygames.show_auth_prompt()
+		crazygames.show_auth_prompt(function(self, user)
+			pprint(user)
+			log(self, "user '%s'", (user and user.username or ""))
+		end)
 		log(self, "crazygames.show_auth_prompt()")
 	end)
 end

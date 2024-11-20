@@ -9,7 +9,8 @@
 typedef void (*MidgameAdCallback)(int success);
 typedef void (*RewardedAdCallback)(int success);
 typedef void (*HasAdBlockCallback)(int success);
-typedef void (*UserAuthCallback)(char* user, char* token);
+typedef void (*UserCallback)(char* user);
+typedef void (*TokenCallback)(char* token);
 
 extern "C" {
 
@@ -45,10 +46,10 @@ extern "C" {
 
     // User module
     bool  CrazyGamesJs_IsUserAccountAvailable();
-    void  CrazyGamesJs_ShowAuthPrompt();
-    void  CrazyGamesJs_GetUser();
-    void  CrazyGamesJs_GetUserToken();
-    void  CrazyGamesJs_SetAuthListener(UserAuthCallback callback);
+    void  CrazyGamesJs_GetUserToken(TokenCallback callback);
+    void  CrazyGamesJs_ShowAuthPrompt(UserCallback callback);
+    void  CrazyGamesJs_GetUser(UserCallback callback);
+    void  CrazyGamesJs_SetAuthListener(UserCallback callback);
     void  CrazyGamesJs_RemoveAuthListener();
     bool  CrazyGamesJs_ShowAccountLinkPrompt();
 }
@@ -142,26 +143,84 @@ static int CrazyGames_HasAdBlock(lua_State* L)
     return 0;
 }
 
+
 /************/
 /*** Auth ***/
 /************/
 
-static dmScript::LuaCallbackInfo* crazyGames_AuthCallback = 0x0;
-static void CrazyGames_InvokeAuthCallback(const char* user, const char* token)
+static dmScript::LuaCallbackInfo* crazyGames_GetUserTokenCallback = 0x0;
+static void CrazyGames_InvokeUserTokenCallback(const char* token)
 {
-    if (!dmScript::IsCallbackValid(crazyGames_AuthCallback))
+    if (!dmScript::IsCallbackValid(crazyGames_GetUserTokenCallback))
     {
-        dmLogError("CrazyGames auth callback is invalid.");
+        dmLogError("CrazyGames user token callback is invalid.");
         return;
     }
 
-    lua_State* L = dmScript::GetCallbackLuaContext(crazyGames_AuthCallback);
+    lua_State* L = dmScript::GetCallbackLuaContext(crazyGames_GetUserTokenCallback);
 
     DM_LUA_STACK_CHECK(L, 0);
 
-    if (!dmScript::SetupCallback(crazyGames_AuthCallback))
+    if (!dmScript::SetupCallback(crazyGames_GetUserTokenCallback))
     {
-        dmLogError("CrazyGames auth callback setup failed.");
+        dmLogError("CrazyGames user token callback setup failed.");
+        return;
+    }
+
+    if (token)
+    {
+        lua_pushstring(L, token);
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+
+    dmScript::PCall(L, 2, 0);
+
+    dmScript::TeardownCallback(crazyGames_GetUserTokenCallback);
+}
+static void CrazyGames_GetUserTokenCallback(char* token)
+{
+    CrazyGames_InvokeUserTokenCallback(token);
+    dmScript::DestroyCallback(crazyGames_GetUserTokenCallback);
+    crazyGames_GetUserTokenCallback = 0x0;
+}
+static int CrazyGames_GetUserToken(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (crazyGames_GetUserTokenCallback = CrazyGames_CreateCallback(L, 1, "get_user_token"))
+    {
+        CrazyGamesJs_GetUserToken((TokenCallback)CrazyGames_GetUserTokenCallback);
+    }
+    return 0;
+}
+
+
+static int CrazyGames_IsUserAccountAvailable(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    bool available = CrazyGamesJs_IsUserAccountAvailable();
+    lua_pushboolean(L, available);
+    return 1;
+}
+
+
+static void CrazyGames_InvokeUserCallback(dmScript::LuaCallbackInfo* callback, const char* user)
+{
+    if (!dmScript::IsCallbackValid(callback))
+    {
+        dmLogError("CrazyGames user callback is invalid.");
+        return;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (!dmScript::SetupCallback(callback))
+    {
+        dmLogError("CrazyGames user callback setup failed.");
         return;
     }
 
@@ -173,65 +232,63 @@ static void CrazyGames_InvokeAuthCallback(const char* user, const char* token)
     else {
         lua_pushnil(L);
     }
-    
-    if (token)
-    {
-        lua_pushstring(L, token);
-    }
-    else
-    {
-        lua_pushnil(L);
-    }
 
-    int ret = dmScript::PCall(L, 3, 0);
-    (void)ret;
+    dmScript::PCall(L, 2, 0);
 
-    dmScript::TeardownCallback(crazyGames_AuthCallback);
+    dmScript::TeardownCallback(callback);
 }
 
-static void CrazyGames_UserAuthCallback(char* user, char* token)
+
+static dmScript::LuaCallbackInfo* crazyGames_GetUserCallback = 0x0;
+static void CrazyGames_GetUserCallback(char* user)
 {
-    CrazyGames_InvokeAuthCallback(user, token);
+    CrazyGames_InvokeUserCallback(crazyGames_GetUserCallback, user);
+    dmScript::DestroyCallback(crazyGames_GetUserCallback);
+    crazyGames_GetUserCallback = 0x0;
 }
-
-static int CrazyGames_IsUserAccountAvailable(lua_State* L)
-{
-    DM_LUA_STACK_CHECK(L, 1);
-    bool available = CrazyGamesJs_IsUserAccountAvailable();
-    lua_pushboolean(L, available);
-    return 1;
-}
-
 static int CrazyGames_GetUser(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    CrazyGamesJs_GetUser();
-    return 0;
-}
-
-static int CrazyGames_ShowAuthPrompt(lua_State* L)
-{
-    DM_LUA_STACK_CHECK(L, 0);
-    CrazyGamesJs_ShowAuthPrompt();
-    return 0;
-}
-
-static int CrazyGames_GetUserToken(lua_State* L)
-{
-    DM_LUA_STACK_CHECK(L, 0);
-    CrazyGamesJs_GetUserToken();
-    return 0;
-}
-
-static int CrazyGames_SetAuthListener(lua_State* L)
-{
-    DM_LUA_STACK_CHECK(L, 0);
-    if (crazyGames_AuthCallback = CrazyGames_CreateCallback(L, 1, "set_auth_listener"))
+    if (crazyGames_GetUserCallback = CrazyGames_CreateCallback(L, 1, "get_user"))
     {
-        CrazyGamesJs_SetAuthListener((UserAuthCallback)CrazyGames_UserAuthCallback);
+        CrazyGamesJs_GetUser((UserCallback)CrazyGames_GetUserCallback);
     }
     return 0;
 }
+
+
+static dmScript::LuaCallbackInfo* crazyGames_ShowAuthPromptCallback = 0x0;
+static void CrazyGames_ShowAuthPromptCallback(char* user)
+{
+    CrazyGames_InvokeUserCallback(crazyGames_ShowAuthPromptCallback, user);
+    dmScript::DestroyCallback(crazyGames_ShowAuthPromptCallback);
+    crazyGames_ShowAuthPromptCallback = 0x0;
+}
+static int CrazyGames_ShowAuthPrompt(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (crazyGames_ShowAuthPromptCallback = CrazyGames_CreateCallback(L, 1, "show_auth_prompt"))
+    {
+        CrazyGamesJs_ShowAuthPrompt((UserCallback)CrazyGames_ShowAuthPromptCallback);
+    }
+    return 0;
+}
+
+static dmScript::LuaCallbackInfo* crazyGames_AuthListenerCallback = 0x0;
+static void CrazyGames_AuthListenerCallback(char* user)
+{
+    CrazyGames_InvokeUserCallback(crazyGames_AuthListenerCallback, user);
+}
+static int CrazyGames_SetAuthListener(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (crazyGames_AuthListenerCallback = CrazyGames_CreateCallback(L, 1, "set_auth_listener"))
+    {
+        CrazyGamesJs_SetAuthListener((UserCallback)CrazyGames_AuthListenerCallback);
+    }
+    return 0;
+}
+
 
 static int CrazyGames_RemoveAuthListener(lua_State* L)
 {

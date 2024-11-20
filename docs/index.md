@@ -25,12 +25,12 @@ The SDK has the following modules:
 * [`banner`](banner) - display banners
 * [`game`](game) - various game events
 * [`user`](user) - for interacting with the currently logged in user
-* [`data`](data) - new module in v3, that allows you to store user data that persists across devices
+* [`data`](data) - store user data that persists across devices
 
 
 ## Example
 
-[Refer to the example project](https://github.com/defold/extension-crazygames/blob/master/main/crazygames.gui_script) to see a complete example of how the intergation works.
+[Refer to the example project](https://github.com/defold/extension-crazygames/blob/master/example/crazygames.gui_script) to see a complete example of how the integration works.
 
 
 ## Source code

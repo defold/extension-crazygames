@@ -87,3 +87,13 @@ Don't forget to hide the invite button when it is no longer necessary:
 ```lua
 crazygames.hide_invite_button()
 ```
+
+
+## Retrieving invite link parameters
+
+The invite link parameters can be retrieved with the help of the `get_invite_param()`` function, for example:
+
+```lua
+-- returns either a string or nil if the parameter is missing
+local room_id = crazygames.get_invite_param("roomId")
+```

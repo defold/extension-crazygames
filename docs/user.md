@@ -102,3 +102,24 @@ When you need to authenticate the requests with your server, you should send the
 
 The token can be verified with the public key hosted at this URL [https://sdk.crazygames.com/publicKey.json](https://sdk.crazygames.com/publicKey.json). We recommend that you fetch the key every time you verify the token, since it may change. Alternatively, you can implement a caching mechanism, and re-fetch it when the token fails to decode due to a possible key change.
 
+
+## Testing
+
+### Local
+When the SDK is in the local environment (on 127.0.0.1 or localhost) it will return some hardcoded default values for the method calls in the user module.
+
+You can customize the returned local values by appending these query parameters:
+
+* `?user_account_available=false` will change the response from the `is_user_account_available()` function to false (it returns true by default).
+* `?show_auth_prompt_response=` will change the response from the `show_auth_prompt()` function. It accepts the following values: `user1`, `user2`, `user_cancelled`
+* `?link_account_response=` will change the response from the `show_account_link_prompt()` method. It accepts the following values: `yes`, `no`, `logged_out`
+* `?user_response=` will change the response from the `get_user()` function. It accepts the following values: `user1`, `user2`, `logged_out`
+* `?token_response=` will change the response from the `get_user_token` function. It accepts the following values: `user1`, `user2`, `expired_token` (to return an expired token), `logged_out`
+
+By default, `get_user` returns `user1`, `get_user_token` returns token for `user1`, `show_account_link_prompt` returns `yes`, `show_auth_prompt` returns `user1`, and `is_user_account_available` returns `true`.
+
+
+### QA Tool
+When previewing the game in the QA tool, you can customize the user module behavior with the following modal:
+
+![](qa-tool-fake-user.jpg)

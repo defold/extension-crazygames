@@ -33,6 +33,14 @@ The SDK has the following modules:
 [Refer to the example project](https://github.com/defold/extension-crazygames/blob/master/example/crazygames.gui_script) to see a complete example of how the integration works.
 
 
+## Quality Assurance Tool
+
+You can use the CrazyGames QATool to test your SDK implementation. You can use the [standalone version](https://developer.crazygames.com/qatool) without creating a submission. With the QATool you can:
+
+* Run your game as it would on Crazygames.
+* Try out the main different resolutions that we use on the site.
+* Test all the SDK features that you implemented and get feedback about it.
+
 ## Source code
 
 The source code is available on [GitHub](https://github.com/defold/extension-crazygames)

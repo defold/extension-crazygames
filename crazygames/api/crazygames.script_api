@@ -233,6 +233,18 @@
 
 #*****************************************************************************************************
 
+  - name: get_xsolla_user_token
+    type: function
+    desc: Generates a custom Xsolla token that you use with the Xsolla SDK. Will call the provided callback with the token.
+
+    parameters:
+    - name: callback
+      desc: The function takes two arguments, self and the xsolla token
+      type: function
+
+
+#*****************************************************************************************************
+
   - name: show_auth_prompt
     type: function
     desc: By calling this method, the log in or register popup will be displayed on CrazyGames. The user can log in their existing account, or create a new account. Will call the provided callback on log in.

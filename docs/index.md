@@ -10,14 +10,15 @@ This extension provides a CrazyGames SDK integration for Defold. [CrazyGames](ht
 
 ![CrazyGames.com landing page](crazygames.jpg)
 
-# Installation
+## Installation
 To use CrazyGames SDK in your Defold project, add a version of the CrazyGames SDK extension to your `game.project` dependencies from the list of available [Releases](https://github.com/defold/extension-crazygames/releases). Find the version you want, copy the URL to ZIP archive of the release and add it to the project dependencies.
 
 ![](add-dependency.png)
 
 Select `Project->Fetch Libraries` once you have added the version to `game.project` to download the version and make it available in your project.
 
-# Modules
+
+## Modules
 
 The SDK has the following modules:
 
@@ -26,6 +27,8 @@ The SDK has the following modules:
 * [`game`](game) - various game events
 * [`user`](user) - for interacting with the currently logged in user
 * [`data`](data) - store user data that persists across devices
+
+The `user` module also has support for Xsolla token creation to perform [in-game purchases](in-game-purchases).
 
 
 ## Example

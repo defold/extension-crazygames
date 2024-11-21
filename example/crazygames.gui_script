@@ -132,7 +132,7 @@ function on_input(self, action_id, action)
 	dirtylarry:button("get_user", action_id, action, function()
 		if crazygames.is_user_account_available() then
 			log(self, "crazygames.get_user()")
-			crazygames.get_user(function(self, user)
+			crazygames.get_user(function(_, user)
 				pprint(user)
 				log(self, "user '%s'", (user and user.username or ""))
 			end)
@@ -144,17 +144,29 @@ function on_input(self, action_id, action)
 	dirtylarry:button("get_user_token", action_id, action, function()
 		if crazygames.is_user_account_available() then
 			log(self, "crazygames.get_user_token()")
-			crazygames.get_user_token(function(self, token)
-				pprint(user)
+			crazygames.get_user_token(function(_, token)
+				print(token)
 				log(self, "token '%s'", token)
 			end)
 		else
 			log(self, "user account is not available")
 		end
 	end)
-	
+
+	dirtylarry:button("get_xsolla_user_token", action_id, action, function()
+		if crazygames.is_user_account_available() then
+			log(self, "crazygames.get_xsolla_user_token()")
+			crazygames.get_xsolla_user_token(function(_, token)
+				print(token)
+				log(self, "token '%s'", token)
+			end)
+		else
+			log(self, "user account is not available")
+		end
+	end)
+		
 	dirtylarry:button("show_auth_prompt", action_id, action, function()
-		crazygames.show_auth_prompt(function(self, user)
+		crazygames.show_auth_prompt(function(_, user)
 			pprint(user)
 			log(self, "user '%s'", (user and user.username or ""))
 		end)

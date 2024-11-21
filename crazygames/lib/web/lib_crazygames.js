@@ -6,6 +6,7 @@ var LibCrazyGames = {
         _luaCallback: null,
         _luaShowAuthPromptCallback: null,
         _luaGetUserTokenCallback: null,
+        _luaGetXsollaUserTokenCallback: null,
         _luaAuthCallback: null,
         _luaGetUserCallback: null,
         _inviteLinkParams: null,
@@ -55,6 +56,17 @@ var LibCrazyGames = {
             }
             else {
                 {{{ makeDynCall("vi", "CrazyGamesJs._luaGetUserTokenCallback")}}}(0);
+            }
+        },
+
+        _callGetXsollaUserTokenCallback: function(token) {
+            console.log("_callGetXsollaUserTokenCallback", token);
+            if (CrazyGamesJs._luaGetXsollaUserTokenCallback == null) return;
+            if (token != null) {
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaGetXsollaUserTokenCallback")}}}(stringToUTF8OnStack(token));
+            }
+            else {
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaGetXsollaUserTokenCallback")}}}(0);
             }
         },
 
@@ -258,6 +270,17 @@ var LibCrazyGames = {
         }).catch ((e) => {
             console.log("Error:", e);
             CrazyGamesJs._callGetUserTokenCallback(null);
+        });
+    },
+
+    CrazyGamesJs_GetXsollaUserToken: function(callback) {
+        CrazyGamesJs._luaGetXsollaUserTokenCallback = callback;
+        window.CrazyGames.SDK.user.getUserToken().then((token) => {
+            console.log("token", token);
+            CrazyGamesJs._callGetXsollaUserTokenCallback(token);
+        }).catch ((e) => {
+            console.log("Error:", e);
+            CrazyGamesJs._callGetXsollaUserTokenCallback(null);
         });
     },
 

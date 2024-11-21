@@ -46,6 +46,7 @@ extern "C" {
 
     // User module
     bool  CrazyGamesJs_IsUserAccountAvailable();
+    void  CrazyGamesJs_GetXsollaUserToken(TokenCallback callback);
     void  CrazyGamesJs_GetUserToken(TokenCallback callback);
     void  CrazyGamesJs_ShowAuthPrompt(UserCallback callback);
     void  CrazyGamesJs_GetUser(UserCallback callback);
@@ -148,20 +149,19 @@ static int CrazyGames_HasAdBlock(lua_State* L)
 /*** Auth ***/
 /************/
 
-static dmScript::LuaCallbackInfo* crazyGames_GetUserTokenCallback = 0x0;
-static void CrazyGames_InvokeUserTokenCallback(const char* token)
+static void CrazyGames_InvokeUserTokenCallback(dmScript::LuaCallbackInfo* callback, const char* token)
 {
-    if (!dmScript::IsCallbackValid(crazyGames_GetUserTokenCallback))
+    if (!dmScript::IsCallbackValid(callback))
     {
         dmLogError("CrazyGames user token callback is invalid.");
         return;
     }
 
-    lua_State* L = dmScript::GetCallbackLuaContext(crazyGames_GetUserTokenCallback);
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
 
     DM_LUA_STACK_CHECK(L, 0);
 
-    if (!dmScript::SetupCallback(crazyGames_GetUserTokenCallback))
+    if (!dmScript::SetupCallback(callback))
     {
         dmLogError("CrazyGames user token callback setup failed.");
         return;
@@ -178,11 +178,13 @@ static void CrazyGames_InvokeUserTokenCallback(const char* token)
 
     dmScript::PCall(L, 2, 0);
 
-    dmScript::TeardownCallback(crazyGames_GetUserTokenCallback);
+    dmScript::TeardownCallback(callback);
 }
+
+static dmScript::LuaCallbackInfo* crazyGames_GetUserTokenCallback = 0x0;
 static void CrazyGames_GetUserTokenCallback(char* token)
 {
-    CrazyGames_InvokeUserTokenCallback(token);
+    CrazyGames_InvokeUserTokenCallback(crazyGames_GetUserTokenCallback, token);
     dmScript::DestroyCallback(crazyGames_GetUserTokenCallback);
     crazyGames_GetUserTokenCallback = 0x0;
 }
@@ -196,6 +198,23 @@ static int CrazyGames_GetUserToken(lua_State* L)
     return 0;
 }
 
+
+static dmScript::LuaCallbackInfo* crazyGames_GetXsollaUserTokenCallback = 0x0;
+static void CrazyGames_GetXsollaUserTokenCallback(char* token)
+{
+    CrazyGames_InvokeUserTokenCallback(crazyGames_GetXsollaUserTokenCallback, token);
+    dmScript::DestroyCallback(crazyGames_GetXsollaUserTokenCallback);
+    crazyGames_GetXsollaUserTokenCallback = 0x0;
+}
+static int CrazyGames_GetXsollaUserToken(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (crazyGames_GetXsollaUserTokenCallback = CrazyGames_CreateCallback(L, 1, "get_xsolla_user_token"))
+    {
+        CrazyGamesJs_GetXsollaUserToken((TokenCallback)CrazyGames_GetXsollaUserTokenCallback);
+    }
+    return 0;
+}
 
 static int CrazyGames_IsUserAccountAvailable(lua_State* L)
 {
@@ -515,6 +534,7 @@ static const luaL_reg Module_methods[] =
     {"is_user_account_available",  CrazyGames_IsUserAccountAvailable},
     {"get_user",                   CrazyGames_GetUser},
     {"get_user_token",             CrazyGames_GetUserToken},
+    {"get_xsolla_user_token",      CrazyGames_GetXsollaUserToken},
     {"show_auth_prompt",           CrazyGames_ShowAuthPrompt},
     {"set_auth_listener",          CrazyGames_SetAuthListener},
     {"remove_auth_listener",       CrazyGames_RemoveAuthListener},

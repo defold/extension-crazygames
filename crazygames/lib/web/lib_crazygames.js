@@ -107,7 +107,7 @@ var LibCrazyGames = {
     },
 
     CrazyGamesJs_ShowRewardedAd: function(callback) {
-        CrazyGamesJs._callback = callback;
+        CrazyGamesJs._luaCallback = callback;
         const callbacks = {
             adFinished: () => {
                 // console.log("CrazyGamesJs_ShowRewardedAd adFinished");

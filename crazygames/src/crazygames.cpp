@@ -28,6 +28,7 @@ extern "C" {
     void  CrazyGamesJs_HideInviteButton();
     char* CrazyGamesJs_InviteLink();
     char* CrazyGamesJs_GetInviteParam(const char* key);
+    bool  CrazyGamesJs_IsInstantMultiplayer();
 
     // Ads module
     void  CrazyGamesJs_ShowMidgameAd(MidgameAdCallback callback);
@@ -430,6 +431,14 @@ static int CrazyGames_GetInviteParam(lua_State* L)
     return 1;
 }
 
+static int CrazyGames_IsInstantMultiplayer(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    bool instant = CrazyGamesJs_IsInstantMultiplayer();
+    lua_pushboolean(L, instant);
+    return 1;
+}
+
 /**************/
 /*** Data ***/
 /**************/
@@ -517,6 +526,7 @@ static const luaL_reg Module_methods[] =
     {"hide_invite_button",         CrazyGames_HideInviteButton},
     {"get_invite_param",           CrazyGames_GetInviteParam},
     {"invite_link",                CrazyGames_InviteLink},
+    {"is_instant_multiplayer",     CrazyGames_IsInstantMultiplayer},
     // ads
     {"show_midgame_ad",            CrazyGames_ShowMidgameAd},
     {"show_rewarded_ad",           CrazyGames_ShowRewardedAd},

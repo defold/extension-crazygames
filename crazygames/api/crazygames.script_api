@@ -151,6 +151,16 @@
 
 #*****************************************************************************************************
 
+  - name: is_instant_multiplayer
+    type: function
+    desc: For multiplayer games, if is_instant_multiplayer() returns true, you should instantly create a new room/lobby for the user.
+
+    returns:
+    - name: instant
+      type: boolean
+
+#*****************************************************************************************************
+
   - name: clear_data
     type: function
     desc: Remove all data items from the local storage.

@@ -168,6 +168,10 @@ var LibCrazyGames = {
         return stringToUTF8OnStack(value);
     },
 
+    CrazyGamesJs_IsInstantMultiplayer: function() {
+        return window.CrazyGames.SDK.game.isInstantMultiplayer;
+    },
+
     CrazyGamesJs_HappyTime: function() {
         window.CrazyGames.SDK.game.happytime();
     },

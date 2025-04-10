@@ -20,6 +20,9 @@ function init(self)
 		end)
 
 		crazygames.request_banner("banner-container", 728, 90)
+
+		local instant = crazygames.is_instant_multiplayer()
+		gui.set_text(gui.get_node("is_instant_multiplayer"), "Instant multiplayer = " .. tostring(instant))
 	else
 		log(self, "This example only works on HTML5")
 	end

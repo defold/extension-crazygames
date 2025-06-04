@@ -5,8 +5,8 @@ main_collection = /example/example.collectionc
 shared_state = 1
 
 [display]
-width = 960
-height = 640
+width = 922
+height = 487
 
 [project]
 title = Defold CrazyGames SDK

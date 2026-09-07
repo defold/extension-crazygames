@@ -177,7 +177,7 @@ var LibCrazyGames = {
 
     CrazyGamesJs_GetInviteParam: function(key) {
         const value = window.CrazyGames.SDK.game.getInviteParam(UTF8ToString(key));
-        return stringToUTF8OnStack(value);
+        return value != null ? stringToUTF8OnStack(value) : null;
     },
 
     CrazyGamesJs_IsInstantMultiplayer: function() {

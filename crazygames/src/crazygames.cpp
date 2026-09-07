@@ -436,7 +436,14 @@ static int CrazyGames_GetInviteParam(lua_State* L)
     DM_LUA_STACK_CHECK(L, 1);
     const char* key = luaL_checkstring(L, 1);
     char* value = CrazyGamesJs_GetInviteParam(key);
-    lua_pushstring(L, value);
+    if (value)
+    {
+        lua_pushstring(L, value);
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
     return 1;
 }
 

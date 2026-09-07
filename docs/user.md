@@ -58,6 +58,20 @@ end)
 The callback receives a table containing `friends`, `page`, `size`, `hasMore`, and `total`, or `nil` if the request fails. Only one `list_friends()` request can be active at a time.
 
 
+## Submit a leaderboard score
+
+Leaderboards are enabled by CrazyGames for selected games. Encrypt the score using the encryption key configured for your leaderboard, then submit both the Base64-encoded encrypted value and the plain numeric score:
+
+```lua
+local score = 152.1
+local encrypted_score = encrypt_leaderboard_score(score, encryption_key)
+
+crazygames.submit_score(encrypted_score, score)
+```
+
+Score encryption is intentionally performed by the game rather than this extension, because it requires the leaderboard-specific key supplied by CrazyGames. See the [CrazyGames Leaderboards SDK documentation](https://docs.crazygames.com/sdk/leaderboards-client/) for the required AES-GCM encryption format and testing instructions.
+
+
 ### Auth listener
 
 You can register user auth listeners that are triggered when the player logs in CrazyGames. A log out doesn't trigger the auth listeners, since the entire page is refreshed when the player logs out

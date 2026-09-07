@@ -357,6 +357,22 @@
 
 #*****************************************************************************************************
 
+  - name: submit_score
+    type: function
+    desc: Submit an encrypted score and its plain numeric value to a CrazyGames leaderboard. Leaderboards must be enabled and configured for the game.
+
+    parameters:
+    - name: encrypted_score
+      type: string
+      desc: The score encrypted with the game's CrazyGames leaderboard encryption key and encoded as Base64.
+
+    - name: score
+      type: number
+      desc: The unencrypted numeric score.
+
+
+#*****************************************************************************************************
+
   - name: is_user_account_available
     type: function
     desc: Before using any user account features, you should always ensure that the user account system is available.
@@ -400,6 +416,21 @@
     - name: callback
       desc: The function takes two arguments, self and the xsolla token
       type: function
+
+
+#*****************************************************************************************************
+
+  - name: track_order
+    type: function
+    desc: Report an in-game purchase order to CrazyGames analytics. Order tracking is optional; use provider "xsolla" for Xsolla orders.
+
+    parameters:
+    - name: provider
+      type: string
+
+    - name: order
+      type: table
+      desc: The JSON-serializable order returned by the payment provider.
 
 
 #*****************************************************************************************************

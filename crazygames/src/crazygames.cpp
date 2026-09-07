@@ -70,6 +70,7 @@ extern "C" {
     bool  CrazyGamesJs_IsUserAccountAvailable();
     char* CrazyGamesJs_GetSystemInfo();
     void  CrazyGamesJs_ListFriends(int32_t page, int32_t size, UserCallback callback);
+    void  CrazyGamesJs_SubmitScore(const char* encrypted_score, double score);
     void  CrazyGamesJs_GetXsollaUserToken(TokenCallback callback);
     void  CrazyGamesJs_GetUserToken(TokenCallback callback);
     void  CrazyGamesJs_ShowAuthPrompt(UserCallback callback);
@@ -77,6 +78,9 @@ extern "C" {
     void  CrazyGamesJs_SetAuthListener(UserCallback callback);
     void  CrazyGamesJs_RemoveAuthListener();
     void  CrazyGamesJs_ShowAccountLinkPrompt(UserCallback callback);
+
+    // Analytics module
+    void  CrazyGamesJs_TrackOrder(const char* provider, const char* order);
 }
 
 
@@ -104,6 +108,27 @@ static dmScript::LuaCallbackInfo* CrazyGames_CreateCallback(lua_State* L, int in
         return 0;
     }
     return dmScript::CreateCallback(L, index);
+}
+
+static char* CrazyGames_LuaTableToJson(lua_State* L, int index, const char* table_name)
+{
+    luaL_checktype(L, index, LUA_TTABLE);
+
+    // Preserve an empty Lua table as a JavaScript object rather than an array.
+    lua_newtable(L);
+    lua_pushboolean(L, 1);
+    lua_setfield(L, -2, "encode_empty_table_as_object");
+
+    char* json = 0x0;
+    size_t json_length = 0;
+    const int encoded = dmScript::LuaToJson(L, index, lua_gettop(L), &json, &json_length);
+    lua_pop(L, 1);
+    if (!encoded)
+    {
+        luaL_error(L, "Unable to encode %s as JSON.", table_name);
+        return 0x0;
+    }
+    return json;
 }
 
 /***********/
@@ -276,6 +301,19 @@ static int CrazyGames_GetSystemInfo(lua_State* L)
         lua_pushnil(L);
     }
     return 1;
+}
+
+static int CrazyGames_SubmitScore(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    const char* encrypted_score = luaL_checkstring(L, 1);
+    const lua_Number score = luaL_checknumber(L, 2);
+    if (encrypted_score[0] == '\0')
+    {
+        return luaL_error(L, "Expected submit_score encrypted_score to be non-empty.");
+    }
+    CrazyGamesJs_SubmitScore(encrypted_score, score);
+    return 0;
 }
 
 
@@ -479,22 +517,7 @@ static int CrazyGames_ReportGameCompletedPercentage(lua_State* L)
 static int CrazyGames_SetGameContext(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    luaL_checktype(L, 1, LUA_TTABLE);
-
-    // Preserve an empty Lua table as a JavaScript object rather than an array.
-    lua_newtable(L);
-    lua_pushboolean(L, 1);
-    lua_setfield(L, -2, "encode_empty_table_as_object");
-
-    char* context = 0x0;
-    size_t context_length = 0;
-    const int encoded = dmScript::LuaToJson(L, 1, lua_gettop(L), &context, &context_length);
-    lua_pop(L, 1);
-    if (!encoded)
-    {
-        return luaL_error(L, "Unable to encode game context as JSON.");
-    }
-
+    char* context = CrazyGames_LuaTableToJson(L, 1, "game context");
     CrazyGamesJs_SetGameContext(context);
     free(context);
     return 0;
@@ -504,6 +527,20 @@ static int CrazyGames_ClearGameContext(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
     CrazyGamesJs_ClearGameContext();
+    return 0;
+}
+
+static int CrazyGames_TrackOrder(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    const char* provider = luaL_checkstring(L, 1);
+    if (provider[0] == '\0')
+    {
+        return luaL_error(L, "Expected track_order provider to be non-empty.");
+    }
+    char* order = CrazyGames_LuaTableToJson(L, 2, "order");
+    CrazyGamesJs_TrackOrder(provider, order);
+    free(order);
     return 0;
 }
 
@@ -867,6 +904,7 @@ static const luaL_reg Module_methods[] =
     {"is_user_account_available",  CrazyGames_IsUserAccountAvailable},
     {"get_system_info",            CrazyGames_GetSystemInfo},
     {"list_friends",               CrazyGames_ListFriends},
+    {"submit_score",               CrazyGames_SubmitScore},
     {"get_user",                   CrazyGames_GetUser},
     {"get_user_token",             CrazyGames_GetUserToken},
     {"get_xsolla_user_token",      CrazyGames_GetXsollaUserToken},
@@ -874,6 +912,8 @@ static const luaL_reg Module_methods[] =
     {"set_auth_listener",          CrazyGames_SetAuthListener},
     {"remove_auth_listener",       CrazyGames_RemoveAuthListener},
     {"show_account_link_prompt",   CrazyGames_ShowAccountLinkPrompt},
+    // analytics
+    {"track_order",                CrazyGames_TrackOrder},
     {0, 0}
 };
 

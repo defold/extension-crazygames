@@ -423,6 +423,20 @@ var LibCrazyGames = {
         return systemInfo != null ? stringToUTF8OnStack(JSON.stringify(systemInfo)) : null;
     },
 
+    CrazyGamesJs_SubmitScore: function(encryptedScore, score) {
+        window.CrazyGames.SDK.user.submitScore({
+            encryptedScore: UTF8ToString(encryptedScore),
+            score: score,
+        });
+    },
+
+    CrazyGamesJs_TrackOrder: function(provider, order) {
+        window.CrazyGames.SDK.analytics.trackOrder(
+            UTF8ToString(provider),
+            JSON.parse(UTF8ToString(order))
+        );
+    },
+
     CrazyGamesJs_ListFriends: function(page, size, callback) {
         CrazyGamesJs._luaListFriendsCallback = callback;
         window.CrazyGames.SDK.user.listFriends({ page: page, size: size }).then((friendsPage) => {

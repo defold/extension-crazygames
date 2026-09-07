@@ -245,9 +245,7 @@ var LibCrazyGames = {
             const element = document.getElementById(name);
             element.style.display = "block";
             // await is not mandatory when requesting banners, but it will allow you to catch errors
-            await window.CrazyGames.SDK.banner.requestResponsiveBanner({
-                id: UTF8ToString(div)
-            });
+            await window.CrazyGames.SDK.banner.requestResponsiveBanner(name);
         } catch (e) {
             console.log("Responsive banner request error", e);
         }

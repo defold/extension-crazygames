@@ -314,6 +314,11 @@ static int CrazyGames_RemoveAuthListener(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
     CrazyGamesJs_RemoveAuthListener();
+    if (crazyGames_AuthListenerCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_AuthListenerCallback);
+        crazyGames_AuthListenerCallback = 0x0;
+    }
     return 0;
 }
 

@@ -314,7 +314,7 @@ var LibCrazyGames = {
     },
 
     CrazyGamesJs_RemoveAuthListener: function() {
-        CrazyGamesJs._luaUserAuthCallback = null;
+        CrazyGamesJs._luaAuthCallback = null;
         window.CrazyGames.SDK.user.removeAuthListener(CrazyGamesJs._authCallback);
     },
 

@@ -5,6 +5,7 @@ var LibCrazyGames = {
     $CrazyGamesJs: {
         _luaCallback: null,
         _luaShowAuthPromptCallback: null,
+        _luaShowAccountLinkPromptCallback: null,
         _luaGetUserTokenCallback: null,
         _luaGetXsollaUserTokenCallback: null,
         _luaAuthCallback: null,
@@ -45,6 +46,17 @@ var LibCrazyGames = {
             }
             else {
                 {{{ makeDynCall("vi", "CrazyGamesJs._luaShowAuthPromptCallback")}}}(0);
+            }
+        },
+
+        _callShowAccountLinkPromptCallback: function(response) {
+            if (CrazyGamesJs._luaShowAccountLinkPromptCallback == null) return;
+            if (response != null) {
+                const responseJson = JSON.stringify(response);
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaShowAccountLinkPromptCallback")}}}(stringToUTF8OnStack(responseJson));
+            }
+            else {
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaShowAccountLinkPromptCallback")}}}(0);
             }
         },
 
@@ -308,11 +320,13 @@ var LibCrazyGames = {
         window.CrazyGames.SDK.user.removeAuthListener(CrazyGamesJs._authCallback);
     },
 
-    CrazyGamesJs_ShowAccountLinkPrompt: function() {
+    CrazyGamesJs_ShowAccountLinkPrompt: function(callback) {
+        CrazyGamesJs._luaShowAccountLinkPromptCallback = callback;
         window.CrazyGames.SDK.user.showAccountLinkPrompt().then((response) => {
-            console.log("response:", response);
-        }).then((e) => {
-            console.log("Error:", e);
+            CrazyGamesJs._callShowAccountLinkPromptCallback(response);
+        }).catch((e) => {
+            console.log("Show account link prompt error:", e);
+            CrazyGamesJs._callShowAccountLinkPromptCallback(null);
         });
     }
 }

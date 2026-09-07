@@ -53,7 +53,7 @@ extern "C" {
     void  CrazyGamesJs_GetUser(UserCallback callback);
     void  CrazyGamesJs_SetAuthListener(UserCallback callback);
     void  CrazyGamesJs_RemoveAuthListener();
-    bool  CrazyGamesJs_ShowAccountLinkPrompt();
+    void  CrazyGamesJs_ShowAccountLinkPrompt(UserCallback callback);
 }
 
 
@@ -317,12 +317,21 @@ static int CrazyGames_RemoveAuthListener(lua_State* L)
     return 0;
 }
 
+static dmScript::LuaCallbackInfo* crazyGames_ShowAccountLinkPromptCallback = 0x0;
+static void CrazyGames_ShowAccountLinkPromptCallback(char* response)
+{
+    CrazyGames_InvokeUserCallback(crazyGames_ShowAccountLinkPromptCallback, response);
+    dmScript::DestroyCallback(crazyGames_ShowAccountLinkPromptCallback);
+    crazyGames_ShowAccountLinkPromptCallback = 0x0;
+}
 static int CrazyGames_ShowAccountLinkPrompt(lua_State* L)
 {
-    DM_LUA_STACK_CHECK(L, 1);
-    bool result = CrazyGamesJs_ShowAccountLinkPrompt();
-    lua_pushboolean(L, result);
-    return 1;
+    DM_LUA_STACK_CHECK(L, 0);
+    if (crazyGames_ShowAccountLinkPromptCallback = CrazyGames_CreateCallback(L, 1, "show_account_link_prompt"))
+    {
+        CrazyGamesJs_ShowAccountLinkPrompt((UserCallback)CrazyGames_ShowAccountLinkPromptCallback);
+    }
+    return 0;
 }
 
 /**************/

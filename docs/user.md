@@ -103,6 +103,21 @@ When you need to authenticate the requests with your server, you should send the
 The token can be verified with the public key hosted at this URL [https://sdk.crazygames.com/publicKey.json](https://sdk.crazygames.com/publicKey.json). We recommend that you fetch the key every time you verify the token, since it may change. Alternatively, you can implement a caching mechanism, and re-fetch it when the token fails to decode due to a possible key change.
 
 
+### Account link prompt
+
+Use the account link prompt to ask the player for permission to link their CrazyGames account to an existing in-game account. The callback receives a table whose `response` field is either `"yes"` or `"no"`. It receives `nil` if the prompt fails.
+
+```lua
+crazygames.show_account_link_prompt(function(self, result)
+  if result then
+    print("Account link response", result.response)
+  else
+    print("Account link prompt failed")
+  end
+end)
+```
+
+
 ## Testing
 
 ### Local

@@ -288,4 +288,9 @@
 
   - name: show_account_link_prompt
     type: function
-    desc: Show an account linking prompt to link a CrazyGames account to the in-game account.
+    desc: Show an account linking prompt to link a CrazyGames account to the in-game account. Will call the provided callback with a response table containing either response = "yes" or response = "no". The response is nil if the prompt fails.
+
+    parameters:
+    - name: callback
+      desc: The function takes two arguments, self and the response table
+      type: function

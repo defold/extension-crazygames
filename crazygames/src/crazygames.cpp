@@ -14,6 +14,8 @@ typedef void (*TokenCallback)(char* token);
 
 extern "C" {
 
+    char* CrazyGamesJs_GetEnvironment();
+
     // Game module
     void  CrazyGamesJs_GameplayStart();
     void  CrazyGamesJs_GameplayStop();
@@ -56,6 +58,21 @@ extern "C" {
     void  CrazyGamesJs_ShowAccountLinkPrompt(UserCallback callback);
 }
 
+
+static int CrazyGames_GetEnvironment(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    char* environment = CrazyGamesJs_GetEnvironment();
+    if (environment)
+    {
+        lua_pushstring(L, environment);
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+    return 1;
+}
 
 
 static dmScript::LuaCallbackInfo* CrazyGames_CreateCallback(lua_State* L, int index, char* funcname)
@@ -537,6 +554,7 @@ static int CrazyGames_ClearAllBanners(lua_State* L) {
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] =
 {
+    {"get_environment",            CrazyGames_GetEnvironment},
     // game
     {"gameplay_start",             CrazyGames_GameplayStart},
     {"gameplay_stop",              CrazyGames_GameplayStop},

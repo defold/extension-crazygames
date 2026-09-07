@@ -6,6 +6,16 @@
 
 #*****************************************************************************************************
 
+  - name: get_environment
+    type: function
+    desc: Get the CrazyGames SDK environment. SDK functionality should only be used when the result is "local" or "crazygames".
+
+    returns:
+    - name: environment
+      type: string
+
+#*****************************************************************************************************
+
   - name: gameplay_start
     type: function
     desc: The gameplayStart() function has to be called whenever the player starts playing or resumes playing after a break (menu/loading/achievement screen, game paused, etc.)

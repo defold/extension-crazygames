@@ -8,8 +8,16 @@ end
 
 function init(self)
 	msg.post(".", "acquire_input_focus")
+	self.crazygames_available = false
 
 	if html5 then
+		local environment = crazygames.get_environment()
+		if environment ~= "local" and environment ~= "crazygames" then
+			log(self, "CrazyGames SDK is unavailable in environment '%s'", tostring(environment))
+			return
+		end
+		self.crazygames_available = true
+
 		crazygames.has_ad_block(function(_, blocked)
 			log(self, "has_ad_block: %s", tostring(blocked))
 		end)
@@ -41,7 +49,7 @@ local function on_rewarded_ad_finished(self, success)
 end
 
 function on_input(self, action_id, action)
-	if not html5 then return end
+	if not self.crazygames_available then return end
 
 	dirtylarry:button("gameplaystart", action_id, action, function()
 		crazygames.gameplay_start()

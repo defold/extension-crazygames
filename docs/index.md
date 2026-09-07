@@ -18,6 +18,18 @@ To use CrazyGames SDK in your Defold project, add a version of the CrazyGames SD
 Select `Project->Fetch Libraries` once you have added the version to `game.project` to download the version and make it available in your project.
 
 
+## Environment
+
+The CrazyGames SDK is available when its environment is `"local"` or `"crazygames"`. On other domains it reports `"disabled"`; avoid calling SDK functionality there.
+
+```lua
+local environment = crazygames.get_environment()
+if environment == "local" or environment == "crazygames" then
+    -- CrazyGames SDK calls are safe here
+end
+```
+
+
 ## Modules
 
 The SDK has the following modules:

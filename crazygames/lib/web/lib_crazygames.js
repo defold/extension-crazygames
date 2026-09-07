@@ -100,6 +100,11 @@ var LibCrazyGames = {
         }
     },
 
+    CrazyGamesJs_GetEnvironment: function() {
+        const environment = window.CrazyGames.SDK.environment;
+        return environment != null ? stringToUTF8OnStack(environment) : null;
+    },
+
     CrazyGamesJs_ShowMidgameAd: function(callback) {
         CrazyGamesJs._luaCallback = callback;
         const callbacks = {

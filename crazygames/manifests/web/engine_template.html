@@ -10,8 +10,12 @@
 		var isLoadFinished = false;
 		var isCrazyGamesInitialized	= false;
 		var isRuntimeInitialized = false;
+		function isCrazyGamesAvailable() {
+			var environment = window.CrazyGames.SDK.environment;
+			return environment === "local" || environment === "crazygames";
+		}
 		Progress.addListener(function(percentage){
-			if (isCrazyGamesInitialized) {
+			if (isCrazyGamesInitialized && isCrazyGamesAvailable()) {
 				if (!isLoadStarted) {
 					window.CrazyGames.SDK.game.loadingStart();
 					isLoadStarted = true;

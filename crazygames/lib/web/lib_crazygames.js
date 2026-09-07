@@ -279,7 +279,7 @@ var LibCrazyGames = {
 
     CrazyGamesJs_GetXsollaUserToken: function(callback) {
         CrazyGamesJs._luaGetXsollaUserTokenCallback = callback;
-        window.CrazyGames.SDK.user.getUserToken().then((token) => {
+        window.CrazyGames.SDK.user.getXsollaUserToken().then((token) => {
             console.log("token", token);
             CrazyGamesJs._callGetXsollaUserTokenCallback(token);
         }).catch ((e) => {

@@ -8,36 +8,67 @@
 		var data = {};
 		var isLoadStarted = false;
 		var isLoadFinished = false;
-		var isCrazyGamesInitialized	= false;
+		var latestLoadingPercentage = null;
+		var isCrazyGamesInitialized = false;
+		var isCrazyGamesInitializationComplete = false;
 		var isRuntimeInitialized = false;
+		var isApplicationStarted = false;
+
 		function isCrazyGamesAvailable() {
+			if (!window.CrazyGames || !window.CrazyGames.SDK) {
+				return false;
+			}
 			var environment = window.CrazyGames.SDK.environment;
 			return environment === "local" || environment === "crazygames";
 		}
-		Progress.addListener(function(percentage){
-			if (isCrazyGamesInitialized && isCrazyGamesAvailable()) {
+
+		function updateCrazyGamesLoadingState() {
+			if (!isCrazyGamesInitialized || !isCrazyGamesAvailable() || latestLoadingPercentage === null) {
+				return;
+			}
+
+			try {
 				if (!isLoadStarted) {
 					window.CrazyGames.SDK.game.loadingStart();
 					isLoadStarted = true;
 				}
-				if (percentage == 100 && !isLoadFinished) {
+				if (latestLoadingPercentage >= 100 && !isLoadFinished) {
 					window.CrazyGames.SDK.game.loadingStop();
 					isLoadFinished = true;
 				}
+			} catch (error) {
+				console.error("Failed to update CrazyGames loading state", error);
 			}
-		});
-		async function initCrazyGames() {
-			await window.CrazyGames.SDK.init();
-			isCrazyGamesInitialized = true;
-			if (isRuntimeInitialized) {
+		}
+
+		function startApplicationIfReady() {
+			if (isRuntimeInitialized && isCrazyGamesInitializationComplete && !isApplicationStarted) {
+				isApplicationStarted = true;
 				Module.runApp("canvas");
 			}
 		}
+
+		Progress.addListener(function(percentage){
+			latestLoadingPercentage = percentage;
+			updateCrazyGamesLoadingState();
+		});
+
+		async function initCrazyGames() {
+			try {
+				await window.CrazyGames.SDK.init();
+				isCrazyGamesInitialized = true;
+				updateCrazyGamesLoadingState();
+			} catch (error) {
+				console.error("Failed to initialize CrazyGames SDK; starting without it", error);
+			} finally {
+				isCrazyGamesInitializationComplete = true;
+				startApplicationIfReady();
+			}
+		}
+
 		Module['onRuntimeInitialized'] = function() {
 			isRuntimeInitialized = true;
-			if (isCrazyGamesInitialized) {
-				Module.runApp("canvas");
-			}
+			startApplicationIfReady();
 		};
 
 		initCrazyGames();

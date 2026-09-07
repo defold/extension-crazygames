@@ -26,7 +26,7 @@ Available sizes are:
 crazygames.request_banner("banner-container", 728, 90)
 ```
 
-Note: You can have no more than 2 banners of the same size in your game.
+Note: You can display no more than 2 in-game banners on the same screen at once.
 
 
 ## Request responsive banner
@@ -40,7 +40,7 @@ Your container size must be set to a non-null value:
 ```
 
 ```lua
-crazygames.request_responsive_banner("banner-container")
+crazygames.request_responsive_banner("responsive-banner-container")
 ```
 
 
@@ -50,8 +50,8 @@ To refresh the banners, simply call the `request_banner` or `request_responsive_
 
 The banners have the following limitations:
 
-* There is a minimum delay of 60 seconds between banner refreshes. If you call the request banner methods more often, you will receive the following error: A banner has already been requested for container banner-container less than 57 seconds ago, please wait.
-* During a gaming session the banners can be refreshed up to 60 times (this applies to each banner size separately).
+* There is a minimum delay of 30 seconds between banner refreshes. Requests made more frequently will fail.
+* During a gaming session, banners can be refreshed up to 120 times. This limit applies separately to each banner size.
 
 
 ### Clearing the banners
@@ -65,4 +65,3 @@ crazygames.clear_all_banners()
 ```
 
 CrazyGames recommend that you clear the banners after hiding them. Otherwise, when you request new banners again, the old banners may still appear for a fraction of a second, which negatively impacts the user experience.
-

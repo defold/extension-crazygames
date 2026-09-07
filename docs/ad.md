@@ -49,6 +49,7 @@ Don't forget to mute the audio and pause the game when the ad starts and to unmu
 You can use the code below to detect if the user has an adblocker.
 
 ```lua
-local result = crazygames.has_adblock()
-print("Adblock usage fetched", result)
+crazygames.has_ad_block(function(self, blocked)
+  print("Adblock usage fetched", blocked)
+end)
 ```

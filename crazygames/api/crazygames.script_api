@@ -38,6 +38,12 @@
     type: function
     desc: The loadingStop() function has to be called when the loading is complete and eventually the gameplay starts.
 
+#*****************************************************************************************************
+
+  - name: happytime
+    type: function
+    desc: Celebrate a major player achievement, such as beating a boss or reaching a high score.
+
 
 #*****************************************************************************************************
 
@@ -61,12 +67,13 @@
 
 #*****************************************************************************************************
 
-  - name: is_ad_blocked
+  - name: has_ad_block
     type: function
     desc: Detect if the user has an adblocker.
 
     parameters:
     - name: callback
+      desc: The function takes two arguments, self and a boolean indicating whether an adblocker was detected.
       type: function
 
 #*****************************************************************************************************
@@ -129,7 +136,7 @@
 
   - name: show_invite_button
     type: function
-    desc: Display a button in the game footer, that opens a popup containing an invite link.
+    desc: Display a button in the game footer that opens a popup containing an invite link. This CrazyGames feature is deprecated in favor of Room Data, but remains available for existing integrations.
 
     parameters:
     - name: params
@@ -149,7 +156,7 @@
 
   - name: get_invite_param
     type: function
-    desc: Get an invite link parameters.
+    desc: Get an invite link parameter.
 
     parameters:
     - name: key
@@ -158,6 +165,7 @@
     returns:
     - name: value
       type: string
+      desc: The parameter value, or nil if the parameter is missing.
 
 #*****************************************************************************************************
 
@@ -173,14 +181,14 @@
 
   - name: clear_data
     type: function
-    desc: Remove all data items from the local storage.
+    desc: Remove all stored game data from the CrazyGames data module.
 
 
 #*****************************************************************************************************
 
   - name: get_item
     type: function
-    desc: Get a data item from the local storage.
+    desc: Get a stored value from the CrazyGames data module.
 
     parameters:
     - name: key
@@ -189,13 +197,14 @@
     returns:
     - name: value
       type: string
+      desc: The stored value, or nil if the key does not exist.
 
 
 #*****************************************************************************************************
 
   - name: remove_item
     type: function
-    desc: Remove a data item from the local storage.
+    desc: Remove a stored value from the CrazyGames data module.
 
     parameters:
     - name: key
@@ -206,7 +215,7 @@
 
   - name: set_item
     type: function
-    desc: Add a data item to the local storage.
+    desc: Store a value in the CrazyGames data module.
 
     parameters:
     - name: key
@@ -231,7 +240,7 @@
 
   - name: get_user
     type: function
-    desc: Retrieve the user currently logged in CrazyGames. If the user is not logged in CrazyGames, the returned user will be null. Will call the provided callback with the logged in user account.
+    desc: Retrieve the user currently logged in CrazyGames. If the user is not logged in CrazyGames, the callback receives nil. Will call the provided callback with the logged in user account.
 
     parameters:
     - name: callback

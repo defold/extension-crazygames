@@ -23,6 +23,8 @@ crazygames.remove_item(key)
 crazygames.set_item(key, value)
 ```
 
+`get_item()` returns the stored string, or `nil` if the key does not exist.
+
 
 ## Guest user behaviour
 

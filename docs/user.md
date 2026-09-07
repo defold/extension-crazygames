@@ -53,10 +53,13 @@ The returned user object will look like this:
 
 ```json
 {
+    "__dangerousUserId": "GAR5irLOPebfbol3QXww2WL1Ja61",
     "username": "SingingCheese.TLNU",
     "profilePictureUrl": "https://images.crazygames.com/userportal/avatars/4.png"
 }
 ```
+
+Do not use `__dangerousUserId` to authenticate a user. It is exposed for convenience and is not a secure identity credential. For authentication, retrieve a JWT with `get_user_token()` and verify it on your server.
 
 
 ### Auth prompt

@@ -11,7 +11,7 @@ The game module contains various functionality related to the game.
 
 ## Happy time
 
-The `happytime()`` method can be called on various player achievements (beating a boss, reaching a highscore, etc.). It makes the website celebrate (for example by launching some confetti). There is no need to call this when a level is completed, or an item is obtained.
+The `happytime()` method can be called on various player achievements (beating a boss, reaching a high score, etc.). It makes the website celebrate (for example by launching some confetti). There is no need to call this when a level is completed or an item is obtained.
 
 ```lua
 crazygames.happytime()
@@ -22,7 +22,7 @@ crazygames.happytime()
 
 CrazyGames provide functions that enable them to track when and how users are playing your games. These can be used to ensure their site does not perform resource intensive actions while a user is playing.
 
-The `gameplay_start()`` function has to be called whenever the player starts playing or resumes playing after a break (menu/loading/achievement screen, game paused, etc.).
+The `gameplay_start()` function has to be called whenever the player starts playing or resumes playing after a break (menu/loading/achievement screen, game paused, etc.).
 
 The `gameplay_stop()` function has to be called on every game break (entering a menu, switching level, pausing the game, ...) don't forget to call `gameplay_start()` when the gameplay resumes
 
@@ -68,6 +68,8 @@ local link = crazygames.invite_link({
 
 ## Invite button
 
+> **Deprecated:** CrazyGames has replaced the invite button with [Room Data](https://docs.crazygames.com/sdk/game/#room-data). This extension retains the invite-button methods for compatibility with existing games, but does not currently expose the Room Data API.
+
 This feature allows you to display a button in the game footer, that opens a popup containing the invite link. The returned link is similar to the link returned from Invite link.
 
 The invite button should only be used to invite players to a multiplayer gaming session. Please avoid using it for other use cases, such as a "Share" button for example, as this may lead to delayed submission check or even game rejection.
@@ -91,7 +93,7 @@ crazygames.hide_invite_button()
 
 ## Retrieving invite link parameters
 
-The invite link parameters can be retrieved with the help of the `get_invite_param()`` function, for example:
+The invite link parameters can be retrieved with the help of the `get_invite_param()` function, for example:
 
 ```lua
 -- returns either a string or nil if the parameter is missing

@@ -52,7 +52,7 @@ The `user` module also has support for Xsolla token creation to perform [in-game
 
 You can use the CrazyGames QATool to test your SDK implementation. You can use the [standalone version](https://developer.crazygames.com/qatool) without creating a submission. With the QATool you can:
 
-* Run your game as it would on Crazygames.
+* Run your game as it would on CrazyGames.
 * Try out the main different resolutions that are used on the site.
 * Test all the SDK features that you implemented and get feedback about it.
 

@@ -5,7 +5,7 @@ brief: This manual covers how to use in-game purchase in the CrazyGames SDK in D
 
 # In-game purchases
 
-CrazyGames have partnered with Xsolla to offer you the possibility to integrate in-game purchases more conveniently. Learn more about how to use Xsolla on the [CrazyGames developer pages](https://docs.crazygames.com/sdk/html5-v3/in-game-purchases/).
+CrazyGames have partnered with Xsolla to offer you the possibility to integrate in-game purchases more conveniently. Learn more about how to use Xsolla on the [CrazyGames developer pages](https://docs.crazygames.com/sdk/in-game-purchases/).
 
 
 ## Get Xsolla token
@@ -19,4 +19,3 @@ end)
 ```
 
 CrazyGames recommend that you retrieve the token every time before using it, since the tokens are usually short-lived, for example only 1 hour. The SDK handles the token refresh.
-

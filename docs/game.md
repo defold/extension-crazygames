@@ -53,6 +53,55 @@ crazygames.loading_stop()
 ```
 
 
+## Room data
+
+For multiplayer games, report the room the player is currently in so CrazyGames can offer platform-level joining and invitations. A room update can contain any combination of `roomId`, `isJoinable`, and `inviteParams`; only the supplied fields are updated.
+
+```lua
+-- The player enters a room. Room IDs must be unique across regions.
+crazygames.update_room({
+  roomId = "123-eu",
+})
+
+-- Other players can now join. These parameters are passed to joining players.
+crazygames.update_room({
+  isJoinable = true,
+  inviteParams = {
+    roomName = "123",
+    region = "eu",
+  },
+})
+
+-- The room is full.
+crazygames.update_room({ isJoinable = false })
+
+-- The player leaves the room.
+crazygames.left_room()
+```
+
+When a game starts from an invitation, retrieve all parameters with `get_invite_params()`. It returns `nil` if the game was not opened from an invite link.
+
+```lua
+local invite_params = crazygames.get_invite_params()
+if invite_params then
+  join_room(invite_params.roomName, invite_params.region)
+end
+```
+
+If the game is already running when the player accepts an invitation, the join-room listener receives the new invite parameters. The Defold integration supports one listener; registering another replaces the previous listener.
+
+```lua
+crazygames.add_join_room_listener(function(self, invite_params)
+  join_room(invite_params.roomName, invite_params.region)
+end)
+
+-- Remove the listener when it is no longer needed.
+crazygames.remove_join_room_listener()
+```
+
+See the [CrazyGames Room Data documentation](https://docs.crazygames.com/sdk/game/#room-data) for platform behavior and multiplayer requirements.
+
+
 ## Invite link
 
 This feature lets you share the CrazyGames version of your game to the players and invite them to join a multiplayer game. You can call `invite_link()` with a map of parameters that correspond to your game or game room.
@@ -68,7 +117,7 @@ local link = crazygames.invite_link({
 
 ## Invite button
 
-> **Deprecated:** CrazyGames has replaced the invite button with [Room Data](https://docs.crazygames.com/sdk/game/#room-data). This extension retains the invite-button methods for compatibility with existing games, but does not currently expose the Room Data API.
+> **Deprecated:** CrazyGames has replaced the invite button with [Room Data](https://docs.crazygames.com/sdk/game/#room-data). This extension retains the invite-button methods for compatibility with existing games; new integrations should use `update_room()` and `left_room()`.
 
 This feature allows you to display a button in the game footer, that opens a popup containing the invite link. The returned link is similar to the link returned from Invite link.
 

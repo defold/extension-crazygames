@@ -11,6 +11,7 @@ typedef void (*RewardedAdCallback)(int success);
 typedef void (*HasAdBlockCallback)(int success);
 typedef void (*UserCallback)(char* user);
 typedef void (*TokenCallback)(char* token);
+typedef void (*JoinRoomCallback)(char* invite_params);
 
 extern "C" {
 
@@ -32,6 +33,15 @@ extern "C" {
     char* CrazyGamesJs_InviteLink();
     char* CrazyGamesJs_GetInviteParam(const char* key);
     bool  CrazyGamesJs_IsInstantMultiplayer();
+    void  CrazyGamesJs_ClearRoomData();
+    void  CrazyGamesJs_SetRoomId(const char* room_id);
+    void  CrazyGamesJs_SetRoomIsJoinable(bool is_joinable);
+    void  CrazyGamesJs_SetRoomInviteParams();
+    void  CrazyGamesJs_UpdateRoom();
+    void  CrazyGamesJs_LeftRoom();
+    char* CrazyGamesJs_GetInviteParams();
+    void  CrazyGamesJs_AddJoinRoomListener(JoinRoomCallback callback);
+    void  CrazyGamesJs_RemoveJoinRoomListener();
 
     // Ads module
     void  CrazyGamesJs_ShowMidgameAd(MidgameAdCallback callback);
@@ -76,7 +86,7 @@ static int CrazyGames_GetEnvironment(lua_State* L)
 }
 
 
-static dmScript::LuaCallbackInfo* CrazyGames_CreateCallback(lua_State* L, int index, char* funcname)
+static dmScript::LuaCallbackInfo* CrazyGames_CreateCallback(lua_State* L, int index, const char* funcname)
 {
     if (!lua_isfunction(L, index))
     {
@@ -244,11 +254,11 @@ static int CrazyGames_IsUserAccountAvailable(lua_State* L)
 }
 
 
-static void CrazyGames_InvokeUserCallback(dmScript::LuaCallbackInfo* callback, const char* user)
+static void CrazyGames_InvokeJsonCallback(dmScript::LuaCallbackInfo* callback, const char* json)
 {
     if (!dmScript::IsCallbackValid(callback))
     {
-        dmLogError("CrazyGames user callback is invalid.");
+        dmLogError("CrazyGames JSON callback is invalid.");
         return;
     }
 
@@ -258,14 +268,14 @@ static void CrazyGames_InvokeUserCallback(dmScript::LuaCallbackInfo* callback, c
 
     if (!dmScript::SetupCallback(callback))
     {
-        dmLogError("CrazyGames user callback setup failed.");
+        dmLogError("CrazyGames JSON callback setup failed.");
         return;
     }
 
-    if (user)
+    if (json)
     {
-        const size_t user_length = strlen(user);
-        dmScript::JsonToLua(L, user, user_length);
+        const size_t json_length = strlen(json);
+        dmScript::JsonToLua(L, json, json_length);
     }
     else {
         lua_pushnil(L);
@@ -280,7 +290,7 @@ static void CrazyGames_InvokeUserCallback(dmScript::LuaCallbackInfo* callback, c
 static dmScript::LuaCallbackInfo* crazyGames_GetUserCallback = 0x0;
 static void CrazyGames_GetUserCallback(char* user)
 {
-    CrazyGames_InvokeUserCallback(crazyGames_GetUserCallback, user);
+    CrazyGames_InvokeJsonCallback(crazyGames_GetUserCallback, user);
     dmScript::DestroyCallback(crazyGames_GetUserCallback);
     crazyGames_GetUserCallback = 0x0;
 }
@@ -298,7 +308,7 @@ static int CrazyGames_GetUser(lua_State* L)
 static dmScript::LuaCallbackInfo* crazyGames_ShowAuthPromptCallback = 0x0;
 static void CrazyGames_ShowAuthPromptCallback(char* user)
 {
-    CrazyGames_InvokeUserCallback(crazyGames_ShowAuthPromptCallback, user);
+    CrazyGames_InvokeJsonCallback(crazyGames_ShowAuthPromptCallback, user);
     dmScript::DestroyCallback(crazyGames_ShowAuthPromptCallback);
     crazyGames_ShowAuthPromptCallback = 0x0;
 }
@@ -315,7 +325,7 @@ static int CrazyGames_ShowAuthPrompt(lua_State* L)
 static dmScript::LuaCallbackInfo* crazyGames_AuthListenerCallback = 0x0;
 static void CrazyGames_AuthListenerCallback(char* user)
 {
-    CrazyGames_InvokeUserCallback(crazyGames_AuthListenerCallback, user);
+    CrazyGames_InvokeJsonCallback(crazyGames_AuthListenerCallback, user);
 }
 static int CrazyGames_SetAuthListener(lua_State* L)
 {
@@ -343,7 +353,7 @@ static int CrazyGames_RemoveAuthListener(lua_State* L)
 static dmScript::LuaCallbackInfo* crazyGames_ShowAccountLinkPromptCallback = 0x0;
 static void CrazyGames_ShowAccountLinkPromptCallback(char* response)
 {
-    CrazyGames_InvokeUserCallback(crazyGames_ShowAccountLinkPromptCallback, response);
+    CrazyGames_InvokeJsonCallback(crazyGames_ShowAccountLinkPromptCallback, response);
     dmScript::DestroyCallback(crazyGames_ShowAccountLinkPromptCallback);
     crazyGames_ShowAccountLinkPromptCallback = 0x0;
 }
@@ -407,6 +417,11 @@ static void CrazyGames_SetInviteLinkParams(lua_State* L, int index) {
     lua_pushnil(L);
     while (lua_next(L, -2) != 0)
     {
+        if (lua_type(L, -2) != LUA_TSTRING)
+        {
+            luaL_error(L, "Expected invite parameter keys to be strings, got '%s'", luaL_typename(L, -2));
+            return;
+        }
         const char* param_name = lua_tostring(L, -2);
         int t = lua_type(L, -1);
         switch (t) {
@@ -420,8 +435,7 @@ static void CrazyGames_SetInviteLinkParams(lua_State* L, int index) {
                 CrazyGamesJs_AddInviteLinkParamNumber(param_name, lua_tonumber(L, -1));
             break;
             default:  /* other values */
-                lua_pop(L, 3);
-                luaL_error(L, "Wrong type for table attribute '%s', type: '%s'", param_name, luaL_typename(L, -1));
+                luaL_error(L, "Wrong type for invite parameter '%s', type: '%s'", param_name, luaL_typename(L, -1));
                 return;
             break;
         }
@@ -476,6 +490,110 @@ static int CrazyGames_IsInstantMultiplayer(lua_State* L)
     bool instant = CrazyGamesJs_IsInstantMultiplayer();
     lua_pushboolean(L, instant);
     return 1;
+}
+
+static int CrazyGames_UpdateRoom(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    luaL_checktype(L, 1, LUA_TTABLE);
+    CrazyGamesJs_ClearRoomData();
+
+    lua_getfield(L, 1, "roomId");
+    if (!lua_isnil(L, -1))
+    {
+        if (lua_type(L, -1) != LUA_TSTRING)
+        {
+            return luaL_error(L, "Expected update_room.roomId to be a string, got '%s'", luaL_typename(L, -1));
+        }
+        CrazyGamesJs_SetRoomId(lua_tostring(L, -1));
+    }
+    lua_pop(L, 1);
+
+    lua_getfield(L, 1, "isJoinable");
+    if (!lua_isnil(L, -1))
+    {
+        if (lua_type(L, -1) != LUA_TBOOLEAN)
+        {
+            return luaL_error(L, "Expected update_room.isJoinable to be a boolean, got '%s'", luaL_typename(L, -1));
+        }
+        CrazyGamesJs_SetRoomIsJoinable(lua_toboolean(L, -1));
+    }
+    lua_pop(L, 1);
+
+    lua_getfield(L, 1, "inviteParams");
+    if (!lua_isnil(L, -1))
+    {
+        if (lua_type(L, -1) != LUA_TTABLE)
+        {
+            return luaL_error(L, "Expected update_room.inviteParams to be a table, got '%s'", luaL_typename(L, -1));
+        }
+        CrazyGames_SetInviteLinkParams(L, -1);
+        CrazyGamesJs_SetRoomInviteParams();
+    }
+    lua_pop(L, 1);
+
+    CrazyGamesJs_UpdateRoom();
+    return 0;
+}
+
+static int CrazyGames_LeftRoom(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_LeftRoom();
+    return 0;
+}
+
+static int CrazyGames_GetInviteParams(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    const char* invite_params = CrazyGamesJs_GetInviteParams();
+    if (invite_params)
+    {
+        dmScript::JsonToLua(L, invite_params, strlen(invite_params));
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static dmScript::LuaCallbackInfo* crazyGames_JoinRoomListenerCallback = 0x0;
+static void CrazyGames_JoinRoomListenerCallback(char* invite_params)
+{
+    CrazyGames_InvokeJsonCallback(crazyGames_JoinRoomListenerCallback, invite_params);
+}
+
+static int CrazyGames_AddJoinRoomListener(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+
+    // The Defold API exposes one join-room listener. Re-registering replaces it.
+    if (crazyGames_JoinRoomListenerCallback)
+    {
+        CrazyGamesJs_RemoveJoinRoomListener();
+        dmScript::DestroyCallback(crazyGames_JoinRoomListenerCallback);
+        crazyGames_JoinRoomListenerCallback = 0x0;
+    }
+
+    crazyGames_JoinRoomListenerCallback = CrazyGames_CreateCallback(L, 1, "add_join_room_listener");
+    if (crazyGames_JoinRoomListenerCallback)
+    {
+        CrazyGamesJs_AddJoinRoomListener((JoinRoomCallback)CrazyGames_JoinRoomListenerCallback);
+    }
+    return 0;
+}
+
+static int CrazyGames_RemoveJoinRoomListener(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_RemoveJoinRoomListener();
+    if (crazyGames_JoinRoomListenerCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_JoinRoomListenerCallback);
+        crazyGames_JoinRoomListenerCallback = 0x0;
+    }
+    return 0;
 }
 
 /**************/
@@ -565,8 +683,13 @@ static const luaL_reg Module_methods[] =
     {"show_invite_button",         CrazyGames_ShowInviteButton},
     {"hide_invite_button",         CrazyGames_HideInviteButton},
     {"get_invite_param",           CrazyGames_GetInviteParam},
+    {"get_invite_params",          CrazyGames_GetInviteParams},
     {"invite_link",                CrazyGames_InviteLink},
     {"is_instant_multiplayer",     CrazyGames_IsInstantMultiplayer},
+    {"update_room",                CrazyGames_UpdateRoom},
+    {"left_room",                  CrazyGames_LeftRoom},
+    {"add_join_room_listener",     CrazyGames_AddJoinRoomListener},
+    {"remove_join_room_listener",  CrazyGames_RemoveJoinRoomListener},
     // ads
     {"show_midgame_ad",            CrazyGames_ShowMidgameAd},
     {"show_rewarded_ad",           CrazyGames_ShowRewardedAd},
@@ -648,6 +771,11 @@ static dmExtension::Result FinalizeCrazyGames(dmExtension::Params* params)
     {
         dmScript::DestroyCallback(crazyGames_ShowAccountLinkPromptCallback);
         crazyGames_ShowAccountLinkPromptCallback = 0x0;
+    }
+    if (crazyGames_JoinRoomListenerCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_JoinRoomListenerCallback);
+        crazyGames_JoinRoomListenerCallback = 0x0;
     }
 
     return dmExtension::RESULT_OK;

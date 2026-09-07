@@ -169,6 +169,17 @@
 
 #*****************************************************************************************************
 
+  - name: get_invite_params
+    type: function
+    desc: Get all invite parameters supplied when the game was opened from an invite link.
+
+    returns:
+    - name: invite_params
+      type: table
+      desc: The invite parameters, or nil if the game was not opened from an invite link.
+
+#*****************************************************************************************************
+
   - name: is_instant_multiplayer
     type: function
     desc: For multiplayer games, if is_instant_multiplayer() returns true, you should instantly create a new room/lobby for the user.
@@ -176,6 +187,39 @@
     returns:
     - name: instant
       type: boolean
+
+#*****************************************************************************************************
+
+  - name: update_room
+    type: function
+    desc: Update the current multiplayer room. The table can contain roomId (string), isJoinable (boolean), and inviteParams (a table of string, number, or boolean values). Only supplied fields are updated.
+
+    parameters:
+    - name: room
+      type: table
+
+#*****************************************************************************************************
+
+  - name: left_room
+    type: function
+    desc: Notify CrazyGames that the player has left the current multiplayer room.
+
+#*****************************************************************************************************
+
+  - name: add_join_room_listener
+    type: function
+    desc: Register a listener for requests to join a multiplayer room. Registering again replaces the previous listener.
+
+    parameters:
+    - name: callback
+      type: function
+      desc: The function takes two arguments, self and the invite parameters table.
+
+#*****************************************************************************************************
+
+  - name: remove_join_room_listener
+    type: function
+    desc: Remove the currently registered join-room listener.
 
 #*****************************************************************************************************
 

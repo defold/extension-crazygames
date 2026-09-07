@@ -10,7 +10,9 @@ var LibCrazyGames = {
         _luaGetXsollaUserTokenCallback: null,
         _luaAuthCallback: null,
         _luaGetUserCallback: null,
+        _luaJoinRoomCallback: null,
         _inviteLinkParams: null,
+        _roomData: null,
 
         _successCallback: function(success) {
             console.log("_successCallback", success, CrazyGamesJs._luaCallback);
@@ -97,6 +99,17 @@ var LibCrazyGames = {
         _authCallback: function(user) {
             console.log("_authCallback", user);
             CrazyGamesJs._callAuthCallback(user);
+        },
+
+        _joinRoomCallback: function(inviteParams) {
+            if (CrazyGamesJs._luaJoinRoomCallback == null) return;
+            if (inviteParams != null) {
+                const inviteParamsJson = JSON.stringify(inviteParams);
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaJoinRoomCallback")}}}(stringToUTF8OnStack(inviteParamsJson));
+            }
+            else {
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaJoinRoomCallback")}}}(0);
+            }
         }
     },
 
@@ -107,6 +120,7 @@ var LibCrazyGames = {
 
     CrazyGamesJs_Finalize: function() {
         const hasAuthListener = CrazyGamesJs._luaAuthCallback != null;
+        const hasJoinRoomListener = CrazyGamesJs._luaJoinRoomCallback != null;
 
         // Prevent pending promises and SDK listeners from dispatching into Lua
         // after the extension has released its callback references.
@@ -117,7 +131,9 @@ var LibCrazyGames = {
         CrazyGamesJs._luaGetXsollaUserTokenCallback = null;
         CrazyGamesJs._luaAuthCallback = null;
         CrazyGamesJs._luaGetUserCallback = null;
+        CrazyGamesJs._luaJoinRoomCallback = null;
         CrazyGamesJs._inviteLinkParams = null;
+        CrazyGamesJs._roomData = null;
 
         try {
             if (hasAuthListener) {
@@ -125,6 +141,13 @@ var LibCrazyGames = {
             }
         } catch (e) {
             console.log("Failed to remove CrazyGames auth listener during shutdown", e);
+        }
+        try {
+            if (hasJoinRoomListener) {
+                window.CrazyGames.SDK.game.removeJoinRoomListener(CrazyGamesJs._joinRoomCallback);
+            }
+        } catch (e) {
+            console.log("Failed to remove CrazyGames join-room listener during shutdown", e);
         }
     },
 
@@ -210,6 +233,46 @@ var LibCrazyGames = {
 
     CrazyGamesJs_IsInstantMultiplayer: function() {
         return window.CrazyGames.SDK.game.isInstantMultiplayer;
+    },
+
+    CrazyGamesJs_ClearRoomData: function() {
+        CrazyGamesJs._roomData = {};
+    },
+
+    CrazyGamesJs_SetRoomId: function(roomId) {
+        CrazyGamesJs._roomData.roomId = UTF8ToString(roomId);
+    },
+
+    CrazyGamesJs_SetRoomIsJoinable: function(isJoinable) {
+        CrazyGamesJs._roomData.isJoinable = !!isJoinable;
+    },
+
+    CrazyGamesJs_SetRoomInviteParams: function() {
+        CrazyGamesJs._roomData.inviteParams = CrazyGamesJs._inviteLinkParams;
+    },
+
+    CrazyGamesJs_UpdateRoom: function() {
+        window.CrazyGames.SDK.game.updateRoom(CrazyGamesJs._roomData);
+        CrazyGamesJs._roomData = null;
+    },
+
+    CrazyGamesJs_LeftRoom: function() {
+        window.CrazyGames.SDK.game.leftRoom();
+    },
+
+    CrazyGamesJs_GetInviteParams: function() {
+        const inviteParams = window.CrazyGames.SDK.game.inviteParams;
+        return inviteParams != null ? stringToUTF8OnStack(JSON.stringify(inviteParams)) : null;
+    },
+
+    CrazyGamesJs_AddJoinRoomListener: function(callback) {
+        CrazyGamesJs._luaJoinRoomCallback = callback;
+        window.CrazyGames.SDK.game.addJoinRoomListener(CrazyGamesJs._joinRoomCallback);
+    },
+
+    CrazyGamesJs_RemoveJoinRoomListener: function() {
+        CrazyGamesJs._luaJoinRoomCallback = null;
+        window.CrazyGames.SDK.game.removeJoinRoomListener(CrazyGamesJs._joinRoomCallback);
     },
 
     CrazyGamesJs_HappyTime: function() {

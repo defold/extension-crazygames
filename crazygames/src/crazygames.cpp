@@ -3,6 +3,7 @@
 #define MODULE_NAME "crazygames"
 
 #include <dmsdk/sdk.h>
+#include <stdlib.h>
 
 #if defined(DM_PLATFORM_HTML5)
 
@@ -25,6 +26,9 @@ extern "C" {
     void  CrazyGamesJs_LoadingStart();
     void  CrazyGamesJs_LoadingStop();
     void  CrazyGamesJs_HappyTime();
+    void  CrazyGamesJs_ReportGameCompletedPercentage(double percentage);
+    void  CrazyGamesJs_SetGameContext(const char* context);
+    void  CrazyGamesJs_ClearGameContext();
     void  CrazyGamesJs_ClearInviteLinkParams();
     void  CrazyGamesJs_AddInviteLinkParamString(const char* key, const char* value);
     void  CrazyGamesJs_AddInviteLinkParamNumber(const char* key, int32_t value);
@@ -64,6 +68,8 @@ extern "C" {
 
     // User module
     bool  CrazyGamesJs_IsUserAccountAvailable();
+    char* CrazyGamesJs_GetSystemInfo();
+    void  CrazyGamesJs_ListFriends(int32_t page, int32_t size, UserCallback callback);
     void  CrazyGamesJs_GetXsollaUserToken(TokenCallback callback);
     void  CrazyGamesJs_GetUserToken(TokenCallback callback);
     void  CrazyGamesJs_ShowAuthPrompt(UserCallback callback);
@@ -257,6 +263,21 @@ static int CrazyGames_IsUserAccountAvailable(lua_State* L)
     return 1;
 }
 
+static int CrazyGames_GetSystemInfo(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    const char* system_info = CrazyGamesJs_GetSystemInfo();
+    if (system_info)
+    {
+        dmScript::JsonToLua(L, system_info, strlen(system_info));
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
 
 static void CrazyGames_InvokeJsonCallback(dmScript::LuaCallbackInfo* callback, const char* json)
 {
@@ -304,6 +325,39 @@ static int CrazyGames_GetUser(lua_State* L)
     if (crazyGames_GetUserCallback = CrazyGames_CreateCallback(L, 1, "get_user"))
     {
         CrazyGamesJs_GetUser((UserCallback)CrazyGames_GetUserCallback);
+    }
+    return 0;
+}
+
+static dmScript::LuaCallbackInfo* crazyGames_ListFriendsCallback = 0x0;
+static void CrazyGames_ListFriendsCallback(char* friends_page)
+{
+    CrazyGames_InvokeJsonCallback(crazyGames_ListFriendsCallback, friends_page);
+    dmScript::DestroyCallback(crazyGames_ListFriendsCallback);
+    crazyGames_ListFriendsCallback = 0x0;
+}
+static int CrazyGames_ListFriends(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    const int32_t page = luaL_checkinteger(L, 1);
+    const int32_t size = luaL_checkinteger(L, 2);
+    if (page < 1)
+    {
+        return luaL_error(L, "Expected list_friends page to be at least 1.");
+    }
+    if (size < 1 || size > 50)
+    {
+        return luaL_error(L, "Expected list_friends size to be between 1 and 50.");
+    }
+    if (crazyGames_ListFriendsCallback)
+    {
+        return luaL_error(L, "A list_friends request is already in progress.");
+    }
+
+    crazyGames_ListFriendsCallback = CrazyGames_CreateCallback(L, 3, "list_friends");
+    if (crazyGames_ListFriendsCallback)
+    {
+        CrazyGamesJs_ListFriends(page, size, (UserCallback)CrazyGames_ListFriendsCallback);
     }
     return 0;
 }
@@ -407,6 +461,49 @@ static int CrazyGames_HappyTime(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
     CrazyGamesJs_HappyTime();
+    return 0;
+}
+
+static int CrazyGames_ReportGameCompletedPercentage(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    const lua_Number percentage = luaL_checknumber(L, 1);
+    if (percentage != percentage || percentage < 0 || percentage > 100)
+    {
+        return luaL_error(L, "Expected report_game_completed_percentage to be between 0 and 100.");
+    }
+    CrazyGamesJs_ReportGameCompletedPercentage(percentage);
+    return 0;
+}
+
+static int CrazyGames_SetGameContext(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    // Preserve an empty Lua table as a JavaScript object rather than an array.
+    lua_newtable(L);
+    lua_pushboolean(L, 1);
+    lua_setfield(L, -2, "encode_empty_table_as_object");
+
+    char* context = 0x0;
+    size_t context_length = 0;
+    const int encoded = dmScript::LuaToJson(L, 1, lua_gettop(L), &context, &context_length);
+    lua_pop(L, 1);
+    if (!encoded)
+    {
+        return luaL_error(L, "Unable to encode game context as JSON.");
+    }
+
+    CrazyGamesJs_SetGameContext(context);
+    free(context);
+    return 0;
+}
+
+static int CrazyGames_ClearGameContext(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_ClearGameContext();
     return 0;
 }
 
@@ -737,6 +834,9 @@ static const luaL_reg Module_methods[] =
     {"loading_start",              CrazyGames_LoadingStart},
     {"loading_stop",               CrazyGames_LoadingStop},
     {"happytime",                  CrazyGames_HappyTime},
+    {"report_game_completed_percentage", CrazyGames_ReportGameCompletedPercentage},
+    {"set_game_context",           CrazyGames_SetGameContext},
+    {"clear_game_context",         CrazyGames_ClearGameContext},
     {"get_game_settings",          CrazyGames_GetGameSettings},
     {"add_settings_change_listener", CrazyGames_AddSettingsChangeListener},
     {"remove_settings_change_listener", CrazyGames_RemoveSettingsChangeListener},
@@ -765,6 +865,8 @@ static const luaL_reg Module_methods[] =
     {"set_item",                   CrazyGames_SetItem},
     // user
     {"is_user_account_available",  CrazyGames_IsUserAccountAvailable},
+    {"get_system_info",            CrazyGames_GetSystemInfo},
+    {"list_friends",               CrazyGames_ListFriends},
     {"get_user",                   CrazyGames_GetUser},
     {"get_user_token",             CrazyGames_GetUserToken},
     {"get_xsolla_user_token",      CrazyGames_GetXsollaUserToken},
@@ -816,6 +918,11 @@ static dmExtension::Result FinalizeCrazyGames(dmExtension::Params* params)
     {
         dmScript::DestroyCallback(crazyGames_GetUserCallback);
         crazyGames_GetUserCallback = 0x0;
+    }
+    if (crazyGames_ListFriendsCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_ListFriendsCallback);
+        crazyGames_ListFriendsCallback = 0x0;
     }
     if (crazyGames_ShowAuthPromptCallback)
     {

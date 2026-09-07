@@ -10,6 +10,7 @@ var LibCrazyGames = {
         _luaGetXsollaUserTokenCallback: null,
         _luaAuthCallback: null,
         _luaGetUserCallback: null,
+        _luaListFriendsCallback: null,
         _luaJoinRoomCallback: null,
         _luaSettingsChangeCallback: null,
         _inviteLinkParams: null,
@@ -97,6 +98,17 @@ var LibCrazyGames = {
             }
         },
 
+        _callListFriendsCallback: function(friendsPage) {
+            if (CrazyGamesJs._luaListFriendsCallback == null) return;
+            if (friendsPage != null) {
+                const friendsPageJson = JSON.stringify(friendsPage);
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaListFriendsCallback")}}}(stringToUTF8OnStack(friendsPageJson));
+            }
+            else {
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaListFriendsCallback")}}}(0);
+            }
+        },
+
         _authCallback: function(user) {
             console.log("_authCallback", user);
             CrazyGamesJs._callAuthCallback(user);
@@ -144,6 +156,7 @@ var LibCrazyGames = {
         CrazyGamesJs._luaGetXsollaUserTokenCallback = null;
         CrazyGamesJs._luaAuthCallback = null;
         CrazyGamesJs._luaGetUserCallback = null;
+        CrazyGamesJs._luaListFriendsCallback = null;
         CrazyGamesJs._luaJoinRoomCallback = null;
         CrazyGamesJs._luaSettingsChangeCallback = null;
         CrazyGamesJs._inviteLinkParams = null;
@@ -300,6 +313,18 @@ var LibCrazyGames = {
         window.CrazyGames.SDK.game.happytime();
     },
 
+    CrazyGamesJs_ReportGameCompletedPercentage: function(percentage) {
+        window.CrazyGames.SDK.game.reportGameCompletedPercentage(percentage);
+    },
+
+    CrazyGamesJs_SetGameContext: function(context) {
+        window.CrazyGames.SDK.game.setGameContext(JSON.parse(UTF8ToString(context)));
+    },
+
+    CrazyGamesJs_ClearGameContext: function() {
+        window.CrazyGames.SDK.game.clearGameContext();
+    },
+
     CrazyGamesJs_GetGameSettings: function() {
         const settings = window.CrazyGames.SDK.game.settings;
         return settings != null ? stringToUTF8OnStack(JSON.stringify(settings)) : null;
@@ -391,6 +416,21 @@ var LibCrazyGames = {
 
     CrazyGamesJs_IsUserAccountAvailable: function() {
         return window.CrazyGames.SDK.user.isUserAccountAvailable;
+    },
+
+    CrazyGamesJs_GetSystemInfo: function() {
+        const systemInfo = window.CrazyGames.SDK.user.systemInfo;
+        return systemInfo != null ? stringToUTF8OnStack(JSON.stringify(systemInfo)) : null;
+    },
+
+    CrazyGamesJs_ListFriends: function(page, size, callback) {
+        CrazyGamesJs._luaListFriendsCallback = callback;
+        window.CrazyGames.SDK.user.listFriends({ page: page, size: size }).then((friendsPage) => {
+            CrazyGamesJs._callListFriendsCallback(friendsPage);
+        }).catch((e) => {
+            console.log("List friends error:", e);
+            CrazyGamesJs._callListFriendsCallback(null);
+        });
     },
 
     CrazyGamesJs_GetUser: function(callback) {

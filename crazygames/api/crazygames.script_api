@@ -75,6 +75,32 @@
 
 #*****************************************************************************************************
 
+  - name: report_game_completed_percentage
+    type: function
+    desc: Report the player's current game-completion percentage to CrazyGames. The value must be between 0 and 100.
+
+    parameters:
+    - name: percentage
+      type: number
+
+#*****************************************************************************************************
+
+  - name: set_game_context
+    type: function
+    desc: Attach JSON-serializable game state to feedback submitted by the player. Call clear_game_context when the state is no longer relevant.
+
+    parameters:
+    - name: context
+      type: table
+
+#*****************************************************************************************************
+
+  - name: clear_game_context
+    type: function
+    desc: Clear the game context previously supplied with set_game_context.
+
+#*****************************************************************************************************
+
   - name: show_rewarded_ad
     type: function
     desc: Show a rewarded ad.
@@ -295,6 +321,38 @@
 
     - name: value
       type: string
+
+
+#*****************************************************************************************************
+
+  - name: get_system_info
+    type: function
+    desc: Get information about the user's locale, country, device, operating system, browser, and CrazyGames application type.
+
+    returns:
+    - name: system_info
+      type: table
+      desc: The current system information, or nil if it is unavailable.
+
+
+#*****************************************************************************************************
+
+  - name: list_friends
+    type: function
+    desc: Retrieve one page of the current user's CrazyGames friends. Only one list_friends request may be active at a time. The callback receives nil if the request fails.
+
+    parameters:
+    - name: page
+      type: number
+      desc: Page number, starting at 1.
+
+    - name: size
+      type: number
+      desc: Number of friends to retrieve, between 1 and 50.
+
+    - name: callback
+      type: function
+      desc: The function takes two arguments, self and the friends-page table.
 
 
 #*****************************************************************************************************

@@ -20,6 +20,44 @@ print("User account system available", available);
 ```
 
 
+## System information
+
+System information is available synchronously after SDK initialization. Use `locale` when selecting a language; `applicationType` indicates whether the game is running on the web, as a PWA, or in a CrazyGames mobile app.
+
+```lua
+local system_info = crazygames.get_system_info()
+if system_info then
+  print("Locale", system_info.locale)
+  print("Country", system_info.countryCode)
+  print("Device", system_info.device.type)
+  print("Application", system_info.applicationType)
+end
+```
+
+The returned table contains `countryCode`, `locale`, `device`, `os`, `browser`, and `applicationType`.
+
+
+## Get friends
+
+Retrieve the signed-in user's friends one page at a time. Pages start at 1 and page size must be between 1 and 50.
+
+```lua
+crazygames.list_friends(1, 10, function(self, friends_page)
+  if not friends_page then
+    print("Unable to retrieve friends")
+    return
+  end
+
+  for _, friend in ipairs(friends_page.friends) do
+    print(friend.username, friend.profilePictureUrl)
+  end
+  print("More friends available", friends_page.hasMore)
+end)
+```
+
+The callback receives a table containing `friends`, `page`, `size`, `hasMore`, and `total`, or `nil` if the request fails. Only one `list_friends()` request can be active at a time.
+
+
 ### Auth listener
 
 You can register user auth listeners that are triggered when the player logs in CrazyGames. A log out doesn't trigger the auth listeners, since the entire page is refreshed when the player logs out

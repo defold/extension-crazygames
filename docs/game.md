@@ -52,6 +52,38 @@ crazygames.happytime()
 ```
 
 
+## Game completion percentage
+
+Report progression milestones with a number from 0 to 100. Reporting 100 is sufficient for games without useful intermediate milestones.
+
+```lua
+-- The player has completed half of the game's progression.
+crazygames.report_game_completed_percentage(50)
+
+-- The player reached a meaningful completion point.
+crazygames.report_game_completed_percentage(100)
+```
+
+If an update adds new content, report the player's recalculated percentage when the game starts, even if it is lower than a previously reported value.
+
+
+## Game context
+
+Game context attaches relevant state to feedback submitted through CrazyGames, making reports easier to reproduce. The context must be a JSON-serializable Lua table.
+
+```lua
+-- Set context when the player enters a level.
+crazygames.set_game_context({
+  level = 12,
+  weapon = "bow",
+  gold = 450,
+})
+
+-- Clear it when that context is no longer relevant.
+crazygames.clear_game_context()
+```
+
+
 ## Gameplay start/stop
 
 CrazyGames provide functions that enable them to track when and how users are playing your games. These can be used to ensure their site does not perform resource intensive actions while a user is playing.

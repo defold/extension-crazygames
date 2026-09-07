@@ -215,7 +215,7 @@ var LibCrazyGames = {
 
     CrazyGamesJs_GetItem: function(key) {
         var value = window.CrazyGames.SDK.data.getItem(UTF8ToString(key));
-        return value ? stringToUTF8OnStack(value) : null;
+        return value != null ? stringToUTF8OnStack(value) : null;
     },
 
     CrazyGamesJs_RemoveItem: function(key) {

@@ -8,6 +8,40 @@ brief: This manual covers how to use the game module in the CrazyGames SDK in De
 The game module contains various functionality related to the game.
 
 
+## Game settings
+
+The settings table contains:
+
+* `muteAudio` — mute game audio when `true`. This setting must take priority over the game's own audio preference.
+* `disableChat` — disable in-game chat when `true`, if the game provides chat.
+
+Read and apply the initial settings when the game starts, then register a listener to react to changes:
+
+```lua
+local function apply_game_settings(settings)
+  set_game_audio_muted(settings.muteAudio)
+  set_chat_enabled(not settings.disableChat)
+end
+
+local settings = crazygames.get_game_settings()
+if settings then
+  apply_game_settings(settings)
+end
+
+crazygames.add_settings_change_listener(function(self, updated_settings)
+  apply_game_settings(updated_settings)
+end)
+```
+
+The Defold integration supports one settings listener; registering another replaces the previous listener. Remove it when it is no longer needed:
+
+```lua
+crazygames.remove_settings_change_listener()
+```
+
+For local testing, append `?muteAudio=true` or `?disableChat=true` to the game URL. CrazyGames requires `muteAudio` support for a full HTML5 implementation. See the [CrazyGames Game Settings documentation](https://docs.crazygames.com/sdk/game/#game-settings).
+
+
 
 ## Happy time
 

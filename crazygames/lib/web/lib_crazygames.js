@@ -11,6 +11,7 @@ var LibCrazyGames = {
         _luaAuthCallback: null,
         _luaGetUserCallback: null,
         _luaJoinRoomCallback: null,
+        _luaSettingsChangeCallback: null,
         _inviteLinkParams: null,
         _roomData: null,
 
@@ -110,6 +111,17 @@ var LibCrazyGames = {
             else {
                 {{{ makeDynCall("vi", "CrazyGamesJs._luaJoinRoomCallback")}}}(0);
             }
+        },
+
+        _settingsChangeCallback: function(settings) {
+            if (CrazyGamesJs._luaSettingsChangeCallback == null) return;
+            if (settings != null) {
+                const settingsJson = JSON.stringify(settings);
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaSettingsChangeCallback")}}}(stringToUTF8OnStack(settingsJson));
+            }
+            else {
+                {{{ makeDynCall("vi", "CrazyGamesJs._luaSettingsChangeCallback")}}}(0);
+            }
         }
     },
 
@@ -121,6 +133,7 @@ var LibCrazyGames = {
     CrazyGamesJs_Finalize: function() {
         const hasAuthListener = CrazyGamesJs._luaAuthCallback != null;
         const hasJoinRoomListener = CrazyGamesJs._luaJoinRoomCallback != null;
+        const hasSettingsChangeListener = CrazyGamesJs._luaSettingsChangeCallback != null;
 
         // Prevent pending promises and SDK listeners from dispatching into Lua
         // after the extension has released its callback references.
@@ -132,6 +145,7 @@ var LibCrazyGames = {
         CrazyGamesJs._luaAuthCallback = null;
         CrazyGamesJs._luaGetUserCallback = null;
         CrazyGamesJs._luaJoinRoomCallback = null;
+        CrazyGamesJs._luaSettingsChangeCallback = null;
         CrazyGamesJs._inviteLinkParams = null;
         CrazyGamesJs._roomData = null;
 
@@ -148,6 +162,13 @@ var LibCrazyGames = {
             }
         } catch (e) {
             console.log("Failed to remove CrazyGames join-room listener during shutdown", e);
+        }
+        try {
+            if (hasSettingsChangeListener) {
+                window.CrazyGames.SDK.game.removeSettingsChangeListener(CrazyGamesJs._settingsChangeCallback);
+            }
+        } catch (e) {
+            console.log("Failed to remove CrazyGames settings-change listener during shutdown", e);
         }
     },
 
@@ -277,6 +298,21 @@ var LibCrazyGames = {
 
     CrazyGamesJs_HappyTime: function() {
         window.CrazyGames.SDK.game.happytime();
+    },
+
+    CrazyGamesJs_GetGameSettings: function() {
+        const settings = window.CrazyGames.SDK.game.settings;
+        return settings != null ? stringToUTF8OnStack(JSON.stringify(settings)) : null;
+    },
+
+    CrazyGamesJs_AddSettingsChangeListener: function(callback) {
+        CrazyGamesJs._luaSettingsChangeCallback = callback;
+        window.CrazyGames.SDK.game.addSettingsChangeListener(CrazyGamesJs._settingsChangeCallback);
+    },
+
+    CrazyGamesJs_RemoveSettingsChangeListener: function() {
+        CrazyGamesJs._luaSettingsChangeCallback = null;
+        window.CrazyGames.SDK.game.removeSettingsChangeListener(CrazyGamesJs._settingsChangeCallback);
     },
 
     CrazyGamesJs_GameplayStart: function() {

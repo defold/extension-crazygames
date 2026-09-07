@@ -12,6 +12,7 @@ typedef void (*HasAdBlockCallback)(int success);
 typedef void (*UserCallback)(char* user);
 typedef void (*TokenCallback)(char* token);
 typedef void (*JoinRoomCallback)(char* invite_params);
+typedef void (*SettingsChangeCallback)(char* settings);
 
 extern "C" {
 
@@ -42,6 +43,9 @@ extern "C" {
     char* CrazyGamesJs_GetInviteParams();
     void  CrazyGamesJs_AddJoinRoomListener(JoinRoomCallback callback);
     void  CrazyGamesJs_RemoveJoinRoomListener();
+    char* CrazyGamesJs_GetGameSettings();
+    void  CrazyGamesJs_AddSettingsChangeListener(SettingsChangeCallback callback);
+    void  CrazyGamesJs_RemoveSettingsChangeListener();
 
     // Ads module
     void  CrazyGamesJs_ShowMidgameAd(MidgameAdCallback callback);
@@ -406,6 +410,59 @@ static int CrazyGames_HappyTime(lua_State* L)
     return 0;
 }
 
+static int CrazyGames_GetGameSettings(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    const char* settings = CrazyGamesJs_GetGameSettings();
+    if (settings)
+    {
+        dmScript::JsonToLua(L, settings, strlen(settings));
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static dmScript::LuaCallbackInfo* crazyGames_SettingsChangeListenerCallback = 0x0;
+static void CrazyGames_SettingsChangeListenerCallback(char* settings)
+{
+    CrazyGames_InvokeJsonCallback(crazyGames_SettingsChangeListenerCallback, settings);
+}
+
+static int CrazyGames_AddSettingsChangeListener(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+
+    // The Defold API exposes one settings listener. Re-registering replaces it.
+    if (crazyGames_SettingsChangeListenerCallback)
+    {
+        CrazyGamesJs_RemoveSettingsChangeListener();
+        dmScript::DestroyCallback(crazyGames_SettingsChangeListenerCallback);
+        crazyGames_SettingsChangeListenerCallback = 0x0;
+    }
+
+    crazyGames_SettingsChangeListenerCallback = CrazyGames_CreateCallback(L, 1, "add_settings_change_listener");
+    if (crazyGames_SettingsChangeListenerCallback)
+    {
+        CrazyGamesJs_AddSettingsChangeListener((SettingsChangeCallback)CrazyGames_SettingsChangeListenerCallback);
+    }
+    return 0;
+}
+
+static int CrazyGames_RemoveSettingsChangeListener(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    CrazyGamesJs_RemoveSettingsChangeListener();
+    if (crazyGames_SettingsChangeListenerCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_SettingsChangeListenerCallback);
+        crazyGames_SettingsChangeListenerCallback = 0x0;
+    }
+    return 0;
+}
+
 /***************/
 /*** Invites ***/
 /***************/
@@ -680,6 +737,9 @@ static const luaL_reg Module_methods[] =
     {"loading_start",              CrazyGames_LoadingStart},
     {"loading_stop",               CrazyGames_LoadingStop},
     {"happytime",                  CrazyGames_HappyTime},
+    {"get_game_settings",          CrazyGames_GetGameSettings},
+    {"add_settings_change_listener", CrazyGames_AddSettingsChangeListener},
+    {"remove_settings_change_listener", CrazyGames_RemoveSettingsChangeListener},
     {"show_invite_button",         CrazyGames_ShowInviteButton},
     {"hide_invite_button",         CrazyGames_HideInviteButton},
     {"get_invite_param",           CrazyGames_GetInviteParam},
@@ -776,6 +836,11 @@ static dmExtension::Result FinalizeCrazyGames(dmExtension::Params* params)
     {
         dmScript::DestroyCallback(crazyGames_JoinRoomListenerCallback);
         crazyGames_JoinRoomListenerCallback = 0x0;
+    }
+    if (crazyGames_SettingsChangeListenerCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_SettingsChangeListenerCallback);
+        crazyGames_SettingsChangeListenerCallback = 0x0;
     }
 
     return dmExtension::RESULT_OK;

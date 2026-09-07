@@ -16,6 +16,34 @@
 
 #*****************************************************************************************************
 
+  - name: get_game_settings
+    type: function
+    desc: Get the current CrazyGames game settings, including muteAudio and disableChat.
+
+    returns:
+    - name: settings
+      type: table
+      desc: The current settings table, or nil if settings are unavailable.
+
+#*****************************************************************************************************
+
+  - name: add_settings_change_listener
+    type: function
+    desc: Register a listener that is called whenever the CrazyGames game settings change. Registering again replaces the previous listener.
+
+    parameters:
+    - name: callback
+      type: function
+      desc: The function takes two arguments, self and the updated settings table.
+
+#*****************************************************************************************************
+
+  - name: remove_settings_change_listener
+    type: function
+    desc: Remove the currently registered game-settings listener.
+
+#*****************************************************************************************************
+
   - name: gameplay_start
     type: function
     desc: The gameplayStart() function has to be called whenever the player starts playing or resumes playing after a break (menu/loading/achievement screen, game paused, etc.)

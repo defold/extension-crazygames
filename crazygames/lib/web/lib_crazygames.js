@@ -105,6 +105,29 @@ var LibCrazyGames = {
         return environment != null ? stringToUTF8OnStack(environment) : null;
     },
 
+    CrazyGamesJs_Finalize: function() {
+        const hasAuthListener = CrazyGamesJs._luaAuthCallback != null;
+
+        // Prevent pending promises and SDK listeners from dispatching into Lua
+        // after the extension has released its callback references.
+        CrazyGamesJs._luaCallback = null;
+        CrazyGamesJs._luaShowAuthPromptCallback = null;
+        CrazyGamesJs._luaShowAccountLinkPromptCallback = null;
+        CrazyGamesJs._luaGetUserTokenCallback = null;
+        CrazyGamesJs._luaGetXsollaUserTokenCallback = null;
+        CrazyGamesJs._luaAuthCallback = null;
+        CrazyGamesJs._luaGetUserCallback = null;
+        CrazyGamesJs._inviteLinkParams = null;
+
+        try {
+            if (hasAuthListener) {
+                window.CrazyGames.SDK.user.removeAuthListener(CrazyGamesJs._authCallback);
+            }
+        } catch (e) {
+            console.log("Failed to remove CrazyGames auth listener during shutdown", e);
+        }
+    },
+
     CrazyGamesJs_ShowMidgameAd: function(callback) {
         CrazyGamesJs._luaCallback = callback;
         const callbacks = {

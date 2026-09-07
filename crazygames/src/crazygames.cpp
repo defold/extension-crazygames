@@ -15,6 +15,7 @@ typedef void (*TokenCallback)(char* token);
 extern "C" {
 
     char* CrazyGamesJs_GetEnvironment();
+    void  CrazyGamesJs_Finalize();
 
     // Game module
     void  CrazyGamesJs_GameplayStart();
@@ -609,6 +610,46 @@ static dmExtension::Result InitializeCrazyGames(dmExtension::Params* params)
 
 static dmExtension::Result FinalizeCrazyGames(dmExtension::Params* params)
 {
+    // Stop JavaScript from dispatching any pending asynchronous results before
+    // releasing the Lua callbacks they reference.
+    CrazyGamesJs_Finalize();
+
+    if (crazyGames_AdCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_AdCallback);
+        crazyGames_AdCallback = 0x0;
+    }
+    if (crazyGames_GetUserTokenCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_GetUserTokenCallback);
+        crazyGames_GetUserTokenCallback = 0x0;
+    }
+    if (crazyGames_GetXsollaUserTokenCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_GetXsollaUserTokenCallback);
+        crazyGames_GetXsollaUserTokenCallback = 0x0;
+    }
+    if (crazyGames_GetUserCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_GetUserCallback);
+        crazyGames_GetUserCallback = 0x0;
+    }
+    if (crazyGames_ShowAuthPromptCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_ShowAuthPromptCallback);
+        crazyGames_ShowAuthPromptCallback = 0x0;
+    }
+    if (crazyGames_AuthListenerCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_AuthListenerCallback);
+        crazyGames_AuthListenerCallback = 0x0;
+    }
+    if (crazyGames_ShowAccountLinkPromptCallback)
+    {
+        dmScript::DestroyCallback(crazyGames_ShowAccountLinkPromptCallback);
+        crazyGames_ShowAccountLinkPromptCallback = 0x0;
+    }
+
     return dmExtension::RESULT_OK;
 }
 
